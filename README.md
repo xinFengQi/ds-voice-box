@@ -36,6 +36,6 @@
 
 在 Cloudflare Pages 后台设置以下环境变量：
 
-- `ALIGENIE_NAME`: `08c37fe5f452312ade1dfe18f646d98c.txt`
-- `ALIGENIE_CONTENT`: `Jfc4Z4Ur15JwUBuvUQD5wg7Nu8+l+HscqYlfofbyJdYnx7tv9wuINblmdYCCHO6W`
+- `ALIGENIE_NAME`: `********.txt`
+- `ALIGENIE_CONTENT`: `****************************************************************`
 
