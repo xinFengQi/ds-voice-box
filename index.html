@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Voice Box</title>
+    <!-- 引入 Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Alpine.js (CDN) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md" x-data="app()">
+        <h1 class="text-2xl font-bold mb-6 text-center text-gray-800">家庭语音盒子</h1>
+        
+        <!-- 状态展示 -->
+        <div class="space-y-4">
+            <div class="p-4 bg-blue-50 rounded border border-blue-100">
+                <p class="text-sm text-blue-600 font-semibold">后端状态</p>
+                <p class="text-lg" x-text="statusMessage"></p>
+            </div>
+
+            <button 
+                @click="checkHealth" 
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-200 disabled:opacity-50"
+                :disabled="loading">
+                <span x-show="!loading">检查连接</span>
+                <span x-show="loading">检查中...</span>
+            </button>
+        </div>
+
+        <!-- 环境变量提示 -->
+        <div class="mt-8 text-xs text-gray-500 border-t pt-4">
+            <p class="mb-2 font-semibold">部署提示:</p>
+            <ul class="list-disc list-inside space-y-1">
+                <li>无需构建，推送到 Git 即可。</li>
+                <li>在 Cloudflare 设置环境变量配置天猫精灵校验。</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function app() {
+            return {
+                statusMessage: '等待检测...',
+                loading: false,
+                async checkHealth() {
+                    this.loading = true;
+                    this.statusMessage = '正在连接后端...';
+                    try {
+                        // 调用 Cloudflare Function API
+                        const res = await fetch('/api/hello');
+                        if (res.ok) {
+                            const data = await res.json();
+                            this.statusMessage = `✅ ${data.message}`;
+                        } else {
+                            this.statusMessage = '❌ 连接失败: ' + res.status;
+                        }
+                    } catch (e) {
+                        this.statusMessage = '❌ 网络错误';
+                        console.error(e);
+                    } finally {
+                        this.loading = false;
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+

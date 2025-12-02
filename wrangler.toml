@@ -1,0 +1,9 @@
+name = "home-voice-box"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# 指定 Pages 构建输出目录 (这里直接就是根目录，因为我们没有构建步骤)
+# 但在本地 dev 时，我们需要告诉 wrangler 静态文件在哪里
+[pages]
+  preview_urls = true
+

@@ -1,0 +1,9 @@
+# 忽略开发环境配置文件
+.dev.vars
+.wrangler/
+node_modules/
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
