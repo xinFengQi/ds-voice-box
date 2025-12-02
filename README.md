@@ -27,7 +27,7 @@
    ```bash
    # 在 new-project 目录下运行
    cd new-project
-   npx wrangler pages dev .
+   npx wrangler pages dev . --ip 0.0.0.0
    ```
 
 3. 访问 `http://localhost:8788`
