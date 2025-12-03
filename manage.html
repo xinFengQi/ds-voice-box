@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天猫精灵意图映射管理 - Home Voice Box</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8" x-data="intentManager()" x-init="init()">
+        <div class="max-w-7xl mx-auto">
+            <!-- 标题 -->
+            <div class="mb-6">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">天猫精灵意图映射管理</h1>
+                <p class="text-gray-600">管理天猫精灵意图与米家设备操作的映射关系</p>
+            </div>
+
+            <!-- 添加按钮和登出 -->
+            <div class="mb-4 flex justify-between items-center">
+                <button 
+                    @click="openAddModal()" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                    + 添加映射
+                </button>
+                <div class="flex gap-2">
+                    <button 
+                        @click="loadData()" 
+                        class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
+                        :disabled="loading">
+                        <span x-show="!loading">刷新</span>
+                        <span x-show="loading">加载中...</span>
+                    </button>
+                    <button 
+                        @click="handleLogout()" 
+                        class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                        退出登录
+                    </button>
+                </div>
+            </div>
+
+            <!-- 表格 -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">意图标识</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">调用接口</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">实体ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">回复内容</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <template x-for="item in items" :key="item.id">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="item.id"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="item.intentName"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="item.apiLabel || item.apiName"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="item.entityId"></td>
+                                    <td class="px-6 py-4 text-sm text-gray-900" x-text="item.replyContent || '-'"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button 
+                                            @click="openEditModal(item)" 
+                                            class="text-blue-600 hover:text-blue-900 mr-3">编辑</button>
+                                        <button 
+                                            @click="deleteItem(item.id)" 
+                                            class="text-red-600 hover:text-red-900">删除</button>
+                                    </td>
+                                </tr>
+                            </template>
+                            <tr x-show="items.length === 0">
+                                <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                                    暂无数据，点击"添加映射"开始创建
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 添加/编辑模态框 -->
+            <div 
+                x-show="showModal" 
+                x-cloak
+                x-transition
+                class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
+                @click.self="closeModal()">
+                <div 
+                    @click.stop
+                    class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+                    <div class="mt-3">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4" x-text="modalTitle"></h3>
+                        
+                        <form @submit.prevent="saveItem()">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">意图标识</label>
+                                <input 
+                                    type="text" 
+                                    x-model="formData.intentName"
+                                    required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="例如: TurnOnLight">
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">实体设备</label>
+                                <div class="relative">
+                                    <!-- 搜索输入框 -->
+                                    <input 
+                                        type="text"
+                                        :value="formData.entityId && !showEntityDropdown ? getEntityDisplayName(formData.entityId) : entitySearch"
+                                        @input="entitySearch = $event.target.value; showEntityDropdown = true"
+                                        @focus="showEntityDropdown = true; if(formData.entityId) { entitySearch = ''; }"
+                                        placeholder="请选择设备或输入搜索"
+                                        :disabled="loadingEntities"
+                                        class="w-full px-3 py-2 pr-8 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                                        required>
+                                    
+                                    <!-- 下拉列表 -->
+                                    <div 
+                                        x-show="showEntityDropdown && !loadingEntities"
+                                        @click.stop
+                                        @click.away="showEntityDropdown = false"
+                                        x-cloak
+                                        class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                                        <template x-for="entity in filteredEntities" :key="entity.entity_id">
+                                            <div 
+                                                @click.stop="selectEntity(entity)"
+                                                class="px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                                                :class="{ 'bg-blue-100': formData.entityId === entity.entity_id }">
+                                                <div class="font-medium text-gray-900" x-text="entity.friendly_name"></div>
+                                                <div class="text-xs text-gray-500" x-text="entity.entity_id"></div>
+                                            </div>
+                                        </template>
+                                        <div x-show="filteredEntities.length === 0 && availableEntities.length > 0" class="px-3 py-2 text-sm text-gray-500 text-center">
+                                            未找到匹配的设备
+                                        </div>
+                                        <div x-show="availableEntities.length === 0" class="px-3 py-2 text-sm text-gray-500 text-center">
+                                            暂无设备
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 清除按钮 -->
+                                    <button 
+                                        type="button"
+                                        x-show="formData.entityId"
+                                        @click.stop="clearEntitySelection()"
+                                        class="absolute right-2 top-2 text-gray-400 hover:text-gray-600 z-10">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <p x-show="loadingEntities" class="text-xs text-gray-500 mt-1">正在加载设备列表...</p>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">调用接口</label>
+                                <select 
+                                    x-model="formData.apiName"
+                                    required
+                                    @change="onApiChange()"
+                                    :disabled="!formData.entityId || filteredApis.length === 0"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100">
+                                    <option value="">请选择接口</option>
+                                    <template x-for="api in filteredApis" :key="api.value">
+                                        <option :value="api.value" x-text="api.label"></option>
+                                    </template>
+                                    <option value="" x-show="filteredApis.length === 0">该设备类型暂无可用接口</option>
+                                </select>
+                                <p x-show="formData.entityId && filteredApis.length === 0" class="text-xs text-yellow-600 mt-1">
+                                    提示：当前设备类型（<span x-text="getEntityDomain(formData.entityId)"></span>）暂无可用接口，目前仅支持 light 和 fan 类型设备
+                                </p>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">回复内容</label>
+                                <input 
+                                    type="text" 
+                                    x-model="formData.replyContent"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="例如: 好的，已为您打开风扇">
+                                <p class="text-xs text-gray-500 mt-1">天猫精灵执行操作后的语音回复内容（可选）</p>
+                            </div>
+
+                            <div class="flex justify-end space-x-3 mt-6">
+                                <button 
+                                    type="button"
+                                    @click="closeModal()" 
+                                    class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition duration-200">
+                                    取消
+                                </button>
+                                <button 
+                                    type="submit"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200">
+                                    保存
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 消息提示 -->
+            <div 
+                x-show="message"
+                x-cloak
+                class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50"
+                x-transition>
+                <span x-text="message"></span>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+
+    <script>
+        function intentManager() {
+            return {
+                items: [],
+                loading: false,
+                showModal: false,
+                editingId: null,
+                message: '',
+                loadingEntities: false,
+                formData: {
+                    intentName: '',
+                    apiName: '',
+                    apiLabel: '',
+                    entityId: '',
+                    replyContent: ''
+                },
+                // 所有可用的接口列表
+                allApis: {
+                    light: [
+                        { value: 'turnOnLight', label: '打开灯光' },
+                        { value: 'turnOffLight', label: '关闭灯光' },
+                        { value: 'toggleLight', label: '切换灯光' }
+                    ],
+                    fan: [
+                        { value: 'turnOnFan', label: '打开风扇' },
+                        { value: 'turnOffFan', label: '关闭风扇' },
+                        { value: 'toggleFan', label: '切换风扇' }
+                    ]
+                },
+                availableEntities: [],
+                entitySearch: '', // 实体设备搜索关键词
+                showEntityDropdown: false, // 是否显示实体设备下拉列表
+
+                async loadData() {
+                    this.loading = true;
+                    try {
+                        const response = await fetch('/api/intents');
+                        if (response.ok) {
+                            this.items = await response.json();
+                        } else {
+                            this.showMessage('加载数据失败');
+                        }
+                    } catch (error) {
+                        console.error('Error loading data:', error);
+                        this.showMessage('加载数据失败: ' + error.message);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                // 根据实体ID获取设备类型
+                getEntityDomain(entityId) {
+                    if (!entityId) return null;
+                    return entityId.split('.')[0]; // 'light.kitchen' -> 'light'
+                },
+
+                // 根据搜索关键词过滤实体设备
+                get filteredEntities() {
+                    if (!this.entitySearch) {
+                        return this.availableEntities;
+                    }
+                    const searchLower = this.entitySearch.toLowerCase();
+                    return this.availableEntities.filter(entity => {
+                        const name = (entity.friendly_name || '').toLowerCase();
+                        const id = (entity.entity_id || '').toLowerCase();
+                        return name.includes(searchLower) || id.includes(searchLower);
+                    });
+                },
+
+                // 获取实体设备的显示名称
+                getEntityDisplayName(entityId) {
+                    if (!entityId) return '';
+                    const entity = this.availableEntities.find(e => e.entity_id === entityId);
+                    if (entity) {
+                        return `${entity.friendly_name} (${entity.entity_id})`;
+                    }
+                    return entityId;
+                },
+
+                // 选择实体设备
+                selectEntity(entity) {
+                    this.formData.entityId = entity.entity_id;
+                    this.entitySearch = '';
+                    this.showEntityDropdown = false;
+                    this.onEntityChange();
+                },
+
+                // 清除实体设备选择
+                clearEntitySelection() {
+                    this.formData.entityId = '';
+                    this.entitySearch = '';
+                    this.formData.apiName = '';
+                    this.formData.apiLabel = '';
+                    this.showEntityDropdown = false;
+                },
+
+                // 根据实体类型过滤接口
+                get filteredApis() {
+                    if (!this.formData.entityId) {
+                        return [];
+                    }
+                    const domain = this.getEntityDomain(this.formData.entityId);
+                    return this.allApis[domain] || [];
+                },
+
+                // 当实体设备改变时
+                async onEntityChange() {
+                    // 清空之前选择的接口
+                    this.formData.apiName = '';
+                    this.formData.apiLabel = '';
+                    
+                    // 加载所有设备列表（如果还没有加载）
+                    if (this.availableEntities.length === 0) {
+                        await this.loadEntities();
+                    }
+                },
+
+                // 当接口改变时
+                onApiChange() {
+                    if (this.formData.apiName && this.formData.entityId) {
+                        // 找到对应的 label
+                        const domain = this.getEntityDomain(this.formData.entityId);
+                        const apiList = this.allApis[domain] || [];
+                        const selectedApi = apiList.find(api => api.value === this.formData.apiName);
+                        this.formData.apiLabel = selectedApi ? selectedApi.label : '';
+                    } else {
+                        this.formData.apiLabel = '';
+                    }
+                },
+
+                // 加载所有实体设备
+                async loadEntities() {
+                    this.loadingEntities = true;
+                    try {
+                        const response = await fetch('/api/ha-entities');
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.availableEntities = data.entities || [];
+                        } else {
+                            this.showMessage('加载设备列表失败');
+                        }
+                    } catch (error) {
+                        console.error('Error loading entities:', error);
+                        this.showMessage('加载设备列表失败: ' + error.message);
+                    } finally {
+                        this.loadingEntities = false;
+                    }
+                },
+
+                openAddModal() {
+                    this.editingId = null;
+                    this.formData = {
+                        intentName: '',
+                        apiName: '',
+                        apiLabel: '',
+                        entityId: '',
+                        replyContent: ''
+                    };
+                    this.entitySearch = '';
+                    this.showEntityDropdown = false;
+                    // 先设置 showModal，避免事件冲突
+                    this.showModal = true;
+                    // 如果还没有加载设备列表，则加载
+                    if (this.availableEntities.length === 0) {
+                        this.loadEntities();
+                    }
+                },
+
+                async openEditModal(item) {
+                    this.editingId = item.id;
+                    
+                    // 先加载设备列表（如果需要）
+                    if (this.availableEntities.length === 0) {
+                        await this.loadEntities();
+                    }
+                    
+                    // 先设置 entityId，这样 filteredApis 计算属性可以正确计算
+                    this.formData.entityId = item.entityId || '';
+                    
+                    // 等待一个 tick，确保 filteredApis 已更新
+                    await new Promise(resolve => setTimeout(resolve, 0));
+                    
+                    // 然后设置其他表单数据
+                    this.formData.intentName = item.intentName;
+                    this.formData.apiName = item.apiName || '';
+                    this.formData.apiLabel = item.apiLabel || '';
+                    this.formData.replyContent = item.replyContent || '';
+                    
+                    // 设置搜索关键词为空，显示已选择的设备名称
+                    this.entitySearch = '';
+                    this.showEntityDropdown = false;
+                    
+                    this.showModal = true;
+                    
+                    // 如果已有 apiName 但没有 apiLabel，尝试设置 apiLabel
+                    if (this.formData.apiName && !this.formData.apiLabel) {
+                        this.onApiChange();
+                    }
+                },
+
+                closeModal() {
+                    this.showModal = false;
+                    this.editingId = null;
+                    this.formData = {
+                        intentName: '',
+                        apiName: '',
+                        apiLabel: '',
+                        entityId: '',
+                        replyContent: ''
+                    };
+                    this.entitySearch = '';
+                    this.showEntityDropdown = false;
+                },
+
+                async saveItem() {
+                    try {
+                        const url = this.editingId 
+                            ? `/api/intents/${this.editingId}` 
+                            : '/api/intents';
+                        const method = this.editingId ? 'PUT' : 'POST';
+
+                        const response = await fetch(url, {
+                            method: method,
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(this.formData)
+                        });
+
+                        if (response.ok) {
+                            this.showMessage(this.editingId ? '更新成功' : '添加成功');
+                            this.closeModal();
+                            await this.loadData();
+                        } else {
+                            const error = await response.json();
+                            this.showMessage('保存失败: ' + (error.error || '未知错误'));
+                        }
+                    } catch (error) {
+                        console.error('Error saving item:', error);
+                        this.showMessage('保存失败: ' + error.message);
+                    }
+                },
+
+                async deleteItem(id) {
+                    if (!confirm('确定要删除这条记录吗？')) {
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(`/api/intents/${id}`, {
+                            method: 'DELETE'
+                        });
+
+                        if (response.ok) {
+                            this.showMessage('删除成功');
+                            await this.loadData();
+                        } else {
+                            this.showMessage('删除失败');
+                        }
+                    } catch (error) {
+                        console.error('Error deleting item:', error);
+                        this.showMessage('删除失败: ' + error.message);
+                    }
+                },
+
+                showMessage(msg) {
+                    this.message = msg;
+                    setTimeout(() => {
+                        this.message = '';
+                    }, 3000);
+                },
+
+                get modalTitle() {
+                    return this.editingId ? '编辑映射' : '添加映射';
+                },
+
+                async init() {
+                    // 检查认证状态
+                    const authenticated = await this.checkAuth();
+                    if (!authenticated) {
+                        window.location.href = '/';
+                        return;
+                    }
+                    // 页面加载时自动获取数据
+                    this.loadData();
+                    // 预加载设备列表
+                    this.loadEntities();
+                },
+                
+                async checkAuth() {
+                    try {
+                        const response = await fetch('/api/check-auth');
+                        const data = await response.json();
+                        return data.authenticated === true;
+                    } catch (error) {
+                        console.error('检查认证状态失败:', error);
+                        return false;
+                    }
+                },
+                
+                async handleLogout() {
+                    try {
+                        const response = await fetch('/api/logout', {
+                            method: 'POST'
+                        });
+                        if (response.ok) {
+                            window.location.href = '/';
+                        } else {
+                            alert('退出登录失败，请重试');
+                        }
+                    } catch (error) {
+                        console.error('退出登录失败:', error);
+                        alert('退出登录失败，请重试');
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+

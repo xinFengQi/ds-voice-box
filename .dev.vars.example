@@ -1,0 +1,89 @@
+# ============================================
+# 项目配置说明
+# ============================================
+# 复制此文件为 .dev.vars 并填入实际值
+# .dev.vars 已在 .gitignore 中，不会提交到 Git
+
+# ============================================
+# 一、环境变量配置
+# ============================================
+# 
+# 本地开发：在 .dev.vars 文件中配置以下所有变量
+# 生产环境：在 Cloudflare Dashboard 中配置
+#   - Workers & Pages > 你的项目 > Settings > Variables and Secrets
+#   - 添加以下所有环境变量（包括 KV_BINDING_NAME）
+
+# --- 天猫精灵校验文件配置（必需）---
+# 获取方式：天猫精灵开放平台 > 技能开发 > 域名校验
+# 在域名校验页面会显示需要验证的文件名和内容
+ALIGENIE_NAME=your_aligenie_verify_filename.txt
+ALIGENIE_CONTENT=your_aligenie_verify_content
+
+# --- Home Assistant 配置（必需）---
+# 服务器地址
+HA_URL=http://172.19.0.2:8123
+# 长期访问令牌
+# 获取方式：Home Assistant > 设置 > 人员与区域 > 长期访问令牌 > 创建令牌
+HA_TOKEN=your_long_lived_access_token_here
+
+# --- 管理员密码（必需，用于登录系统）---
+# 登录密码，用于访问管理页面和 API 接口
+# 配置位置：
+#   - 本地开发：在此文件（.dev.vars）中配置
+#   - 生产环境：在 Cloudflare Dashboard > 你的项目 > Settings > Variables and Secrets 中配置
+ADMIN_PASSWORD=your_admin_password_here
+
+# --- KV 配置（必需，用于持久化存储意图数据）---
+# KV Binding 名称（必需）
+# 配置位置：
+#   - 本地开发：在此文件（.dev.vars）中配置
+#   - 生产环境：在 Cloudflare Dashboard > 你的项目 > Settings > Variables and Secrets 中配置
+# 
+# 这个名称必须与你在 Cloudflare Dashboard 中配置的 KV Namespace Binding 名称完全一致
+KV_BINDING_NAME=INTENTS_KV
+
+# ============================================
+# KV 完整配置步骤
+# ============================================
+# 
+# 步骤 1：创建并绑定 KV Namespace
+#   - 创建 KV Namespace：
+#     * Dashboard > Workers & Pages > KV > Create a namespace
+#     * 或使用 CLI: wrangler kv:namespace create "INTENTS_KV"
+#   - 绑定到项目：
+#     * Dashboard > Workers & Pages > 你的项目 > Settings > Variables
+#     * 在 "KV Namespace Bindings" 部分点击 "Add binding"
+#     * Variable name: 可以是任意名称（如 INTENTS_KV、MY_KV_STORE 等）
+#     * KV namespace: 选择你创建的 namespace（本地开发和生产环境使用同一个）
+#     * 点击 Save
+#
+# 步骤 2：设置 KV_BINDING_NAME 环境变量
+#   
+#   本地开发：
+#   - 在此文件（.dev.vars）中设置 KV_BINDING_NAME=你的绑定名称
+#   - 例如：如果 Dashboard 中绑定名称是 INTENTS_KV，则设置 KV_BINDING_NAME=INTENTS_KV
+#   - 例如：如果绑定名称是 MY_KV_STORE，则设置 KV_BINDING_NAME=MY_KV_STORE
+#
+#   生产环境：
+#   - Cloudflare Dashboard > 你的项目 > Settings > Variables and Secrets
+#   - 在 "Environment Variables" 部分添加
+#   - Variable name: KV_BINDING_NAME
+#   - Value: 你的绑定名称（必须与步骤 1 中的 Variable name 一致）
+#
+# 步骤 3：本地开发 KV 配置
+#   - 启动开发服务器时使用 --kv 参数：
+#     npx wrangler pages dev . --ip 0.0.0.0 --kv YOUR_KV_NAME=your_kv_namespace_id
+#   - 其中 YOUR_KV_NAME 必须与 KV_BINDING_NAME 环境变量的值一致
+#   - your_kv_namespace_id 是你的 KV namespace ID（与生产环境使用同一个）
+#   - 获取 KV namespace ID：
+#     * 通过 Dashboard: Workers & Pages > KV > 你的 namespace > 查看 ID
+#     * 或通过 CLI: wrangler kv:namespace list
+#
+#   注意：wrangler pages dev 不支持 wrangler.local.toml，必须使用 --kv 参数
+#   本地开发和生产环境使用同一个 KV namespace
+#
+# 重要提示：
+# - KV_BINDING_NAME 是必需的环境变量，必须设置（本地和生产环境都要设置）
+# - KV_BINDING_NAME 的值必须与 Dashboard 中配置的 KV Binding 名称完全一致
+# - 如果不设置 KV_BINDING_NAME，代码会报错并无法使用 KV 存储
+

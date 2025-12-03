@@ -25,9 +25,14 @@
 
 2. 运行开发服务器:
    ```bash
-   # 在 new-project 目录下运行
-   cd new-project
+   # 基本启动（不使用 KV）
    npx wrangler pages dev . --ip 0.0.0.0
+   
+   # 如果需要使用 KV（本地开发）：
+   npx wrangler pages dev . --ip 0.0.0.0 --kv INTENTS_KV=your_kv_namespace_id
+   # 其中 INTENTS_KV 是绑定名称（与 KV_BINDING_NAME 一致）
+   # your_kv_namespace_id 是你的 KV namespace ID（与生产环境使用同一个）
+   # 获取方式：Dashboard > Workers & Pages > KV > 你的 namespace > 查看 ID
    ```
 
 3. 访问 `http://localhost:8788`

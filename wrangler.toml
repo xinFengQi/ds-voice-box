@@ -7,3 +7,15 @@ compatibility_flags = ["nodejs_compat"]
 [pages]
   preview_urls = true
 
+# ============================================
+# 配置说明
+# ============================================
+# 
+# 所有配置说明和示例请查看：.dev.vars.example
+# 
+# 快速开始：
+# 1. 复制 .dev.vars.example 为 .dev.vars 并填入实际值
+# 2. 生产环境在 Cloudflare Dashboard 中配置环境变量和 KV
+# 3. 详细说明见 .dev.vars.example 文件
+#
+
