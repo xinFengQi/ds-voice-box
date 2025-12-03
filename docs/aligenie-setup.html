@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天猫精灵开发平台配置指南 - Home Voice Box</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+        .code-block {
+            background-color: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+        .code-block code {
+            color: #e2e8f0;
+        }
+        .section {
+            scroll-margin-top: 2rem;
+        }
+        .docs-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr 200px;
+            gap: 2rem;
+            min-height: calc(100vh - 64px);
+        }
+        @media (max-width: 1024px) {
+            .docs-layout {
+                grid-template-columns: 200px 1fr;
+            }
+            .toc-right {
+                display: none;
+            }
+        }
+        @media (max-width: 768px) {
+            .docs-layout {
+                grid-template-columns: 1fr;
+            }
+            .toc-left, .toc-right {
+                display: none;
+            }
+        }
+        .toc-left {
+            position: sticky;
+            top: 4rem;
+            height: fit-content;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+        .toc-right {
+            position: sticky;
+            top: 4rem;
+            height: fit-content;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <a href="/" class="text-xl font-bold text-gray-800 hover:text-blue-600">Home Voice Box</a>
+                <div class="hidden md:flex space-x-4">
+                    <a href="/docs" class="text-gray-600 hover:text-blue-600">文档</a>
+                    <a href="https://github.com/xinFengQi/ds-voice-box" target="_blank" class="text-gray-600 hover:text-blue-600">GitHub</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 三栏布局 -->
+    <div class="docs-layout container mx-auto px-4 py-8">
+        <!-- 左侧目录 -->
+        <aside class="toc-left bg-white rounded-lg shadow p-4">
+            <h3 class="font-bold text-gray-800 mb-4">文档目录</h3>
+            <nav class="space-y-2">
+                <a href="/docs" class="block text-gray-700 hover:text-blue-600">首页</a>
+                <a href="/docs/home-assistant.html" class="block text-gray-700 hover:text-blue-600">Home Assistant 部署</a>
+                <a href="/docs/cloudflare-tunnel.html" class="block text-gray-700 hover:text-blue-600">Cloudflare Tunnel</a>
+                <a href="/docs/cloudflare-pages.html" class="block text-gray-700 hover:text-blue-600">Cloudflare Pages 部署</a>
+                <a href="/docs/aligenie-setup.html" class="block text-blue-600 font-medium">天猫精灵平台配置</a>
+                <a href="/docs/configuration.html" class="block text-gray-700 hover:text-blue-600">配置指南</a>
+                <a href="/docs/usage.html" class="block text-gray-700 hover:text-blue-600">使用指南</a>
+                <a href="/docs/api.html" class="block text-gray-700 hover:text-blue-600">API 文档</a>
+            </nav>
+        </aside>
+
+        <!-- 中间内容 -->
+        <main class="max-w-4xl">
+            <div class="bg-white rounded-lg shadow p-8">
+                <h1 class="text-4xl font-bold text-gray-800 mb-6">天猫精灵开发平台配置指南</h1>
+                
+                <div class="prose max-w-none">
+                    <p class="text-lg text-gray-700 mb-6">
+                        本指南将帮助你在天猫精灵开放平台中创建技能、配置意图、设置服务地址等，这是使用 Home Voice Box 的前置条件。
+                    </p>
+
+                    <section id="overview" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">概述</h2>
+                        <p class="text-gray-700 mb-4">
+                            天猫精灵开放平台是阿里巴巴为开发者提供的智能语音技能开发平台。通过该平台，你可以：
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>创建自定义语音技能</li>
+                            <li>配置意图和触发词</li>
+                            <li>连接后端服务（Home Voice Box）</li>
+                            <li>发布技能供用户使用</li>
+                        </ul>
+                        <p class="text-gray-700 mb-4 mt-4">
+                            参考文档：
+                            <a href="https://aligenie.com/doc" target="_blank" class="text-blue-600 hover:underline">
+                                天猫精灵开放平台官方文档
+                            </a>
+                        </p>
+                    </section>
+
+                    <section id="prerequisites" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">前置要求</h2>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>阿里巴巴账号（淘宝/天猫账号）</li>
+                            <li>已部署的 Home Voice Box 服务（参考 <a href="/docs/cloudflare-pages.html" class="text-blue-600 hover:underline">Cloudflare Pages 部署指南</a>）</li>
+                            <li>已配置的环境变量（参考 <a href="/docs/configuration.html" class="text-blue-600 hover:underline">配置指南</a>）</li>
+                        </ul>
+                    </section>
+
+                    <section id="register" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">注册和登录</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">1. 访问开放平台</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>访问 <a href="https://aligenie.com" target="_blank" class="text-blue-600 hover:underline">天猫精灵开放平台</a></li>
+                            <li>点击右上角 <strong>登录</strong> 按钮</li>
+                            <li>使用淘宝/天猫账号登录</li>
+                        </ol>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">2. 进入开发者中心</h3>
+                        <p class="text-gray-700 mb-4">
+                            登录后，进入 <strong>开发者中心</strong> → <strong>技能开发</strong>。
+                        </p>
+                    </section>
+
+                    <section id="create-skill" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">创建技能</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">1. 新建技能</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>在技能开发页面，点击 <strong>创建技能</strong> 或 <strong>新建技能</strong></li>
+                            <li>选择技能类型：<strong>自定义技能</strong></li>
+                            <li>填写技能基本信息：
+                                <ul class="list-disc list-inside ml-4 mt-2">
+                                    <li><strong>技能名称</strong>：例如 "智能家居控制"</li>
+                                    <li><strong>技能描述</strong>：简要描述技能功能</li>
+                                    <li><strong>技能图标</strong>：上传技能图标（可选）</li>
+                                </ul>
+                            </li>
+                            <li>点击 <strong>确定</strong> 创建技能</li>
+                        </ol>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">2. 配置技能基本信息</h3>
+                        <p class="text-gray-700 mb-4">
+                            在技能详情页面，完善技能的基本信息，包括：
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>技能名称和描述</li>
+                            <li>技能分类</li>
+                            <li>使用场景说明</li>
+                        </ul>
+                    </section>
+
+                    <section id="configure-intent" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">配置意图</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">1. 创建意图</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>在技能详情页面，进入 <strong>意图管理</strong> 或 <strong>意图配置</strong></li>
+                            <li>点击 <strong>新建意图</strong> 或 <strong>添加意图</strong></li>
+                            <li>填写意图信息：
+                                <ul class="list-disc list-inside ml-4 mt-2">
+                                    <li><strong>意图名称</strong>：必须与 Home Voice Box 中配置的意图标识完全一致（如：<code class="bg-gray-100 px-1 rounded">TurnOnLight</code>）</li>
+                                    <li><strong>意图描述</strong>：简要描述意图功能</li>
+                                </ul>
+                            </li>
+                            <li>点击 <strong>保存</strong></li>
+                        </ol>
+
+                        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mt-4">
+                            <p class="text-sm text-yellow-700">
+                                <strong>重要提示：</strong>意图名称必须与 Home Voice Box 管理页面中配置的意图标识完全一致，包括大小写。例如，如果在 Home Voice Box 中配置的意图标识是 <code class="bg-yellow-100 px-1 rounded">TurnOnLight</code>，那么在天猫精灵平台中的意图名称也必须是 <code class="bg-yellow-100 px-1 rounded">TurnOnLight</code>。
+                            </p>
+                        </div>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">2. 配置触发词</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>在意图详情页面，进入 <strong>触发词</strong> 或 <strong>用户话术</strong> 配置</li>
+                            <li>添加用户可能说出的语音指令，例如：
+                                <ul class="list-disc list-inside ml-4 mt-2">
+                                    <li>"打开厨房灯"</li>
+                                    <li>"把灯打开"</li>
+                                    <li>"开灯"</li>
+                                </ul>
+                            </li>
+                            <li>可以添加多个触发词，提高识别准确率</li>
+                            <li>点击 <strong>保存</strong></li>
+                        </ol>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">3. 配置意图参数（可选）</h3>
+                        <p class="text-gray-700 mb-4">
+                            如果你的意图需要参数（如设备名称、操作类型等），可以在意图配置中添加参数：
+                        </p>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>在意图详情页面，进入 <strong>参数配置</strong></li>
+                            <li>添加参数，例如：
+                                <ul class="list-disc list-inside ml-4 mt-2">
+                                    <li><strong>参数名</strong>：device（设备名称）</li>
+                                    <li><strong>参数类型</strong>：文本或枚举</li>
+                                    <li><strong>必填</strong>：是否必填</li>
+                                </ul>
+                            </li>
+                            <li>保存参数配置</li>
+                        </ol>
+                        <p class="text-gray-600 text-sm mt-4">
+                            <strong>注意：</strong>当前版本的 Home Voice Box 主要使用意图名称来匹配操作，参数功能为可选。如果使用参数，需要在 <code class="bg-gray-100 px-1 rounded">functions/api/tomi.js</code> 中解析参数。
+                        </p>
+                    </section>
+
+                    <section id="configure-service" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">配置服务地址</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">1. 设置服务地址</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>在技能详情页面，进入 <strong>服务配置</strong> 或 <strong>后端服务</strong></li>
+                            <li>选择服务类型：<strong>HTTPS</strong></li>
+                            <li>填写服务地址：
+                                <div class="code-block mt-2 mb-2">
+                                    <code>https://your-project.pages.dev/api/tomi</code>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-1">将 <code class="bg-gray-100 px-1 rounded">your-project.pages.dev</code> 替换为你的实际 Cloudflare Pages 域名</p>
+                            </li>
+                            <li>请求方式：<strong>POST</strong></li>
+                            <li>点击 <strong>保存</strong></li>
+                        </ol>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">2. 配置请求格式</h3>
+                        <p class="text-gray-700 mb-4">
+                            确保请求格式配置正确：
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li><strong>Content-Type</strong>：<code class="bg-gray-100 px-1 rounded">application/json</code></li>
+                            <li><strong>字符编码</strong>：<code class="bg-gray-100 px-1 rounded">UTF-8</code></li>
+                        </ul>
+                    </section>
+
+                    <section id="domain-verification" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">域名校验</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">1. 获取校验信息</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>在技能详情页面，进入 <strong>域名校验</strong> 或 <strong>安全配置</strong></li>
+                            <li>系统会显示需要校验的文件名和内容</li>
+                            <li>复制显示的文件名（例如：<code class="bg-gray-100 px-1 rounded">verify_123456.txt</code>）</li>
+                            <li>复制显示的文件内容（一串随机字符）</li>
+                        </ol>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">2. 配置到 Home Voice Box</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>在 Home Voice Box 的环境变量中配置：
+                                <ul class="list-disc list-inside ml-4 mt-2">
+                                    <li><code class="bg-gray-100 px-1 rounded">ALIGENIE_NAME</code>：校验文件名</li>
+                                    <li><code class="bg-gray-100 px-1 rounded">ALIGENIE_CONTENT</code>：校验文件内容</li>
+                                </ul>
+                            </li>
+                            <li>系统会自动处理校验文件，访问 <code class="bg-gray-100 px-1 rounded">/aligenie/文件名</code> 即可返回校验内容</li>
+                        </ol>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">3. 验证域名校验</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>在天猫精灵平台点击 <strong>验证</strong> 按钮</li>
+                            <li>系统会自动访问 <code class="bg-gray-100 px-1 rounded">https://your-domain.com/aligenie/文件名</code></li>
+                            <li>如果返回的内容与平台显示的内容一致，验证通过</li>
+                        </ol>
+
+                        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mt-4">
+                            <p class="text-sm text-blue-700">
+                                <strong>提示：</strong>Home Voice Box 已经实现了自动处理域名校验文件的功能，你只需要配置环境变量即可。详细配置方法请参考 <a href="/docs/configuration.html" class="text-blue-600 hover:underline">配置指南</a>。
+                            </p>
+                        </div>
+                    </section>
+
+                    <section id="test-skill" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">测试技能</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">1. 使用测试工具</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>在技能详情页面，进入 <strong>测试</strong> 或 <strong>调试</strong></li>
+                            <li>输入测试话术（如："打开厨房灯"）</li>
+                            <li>查看返回结果，确认意图识别是否正确</li>
+                            <li>检查服务调用是否成功</li>
+                        </ol>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">2. 在真实设备上测试</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>确保技能已保存并发布（或处于测试状态）</li>
+                            <li>在天猫精灵设备前说出配置的语音指令</li>
+                            <li>观察设备是否执行相应操作</li>
+                            <li>检查 Home Voice Box 的日志，确认请求是否正常接收</li>
+                        </ol>
+                    </section>
+
+                    <section id="submit-review" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">提交审核</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">1. 完善技能信息</h3>
+                        <p class="text-gray-700 mb-4">
+                            在提交审核前，确保以下信息已完善：
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>技能名称和描述</li>
+                            <li>技能图标</li>
+                            <li>使用场景说明</li>
+                            <li>隐私政策（如需要）</li>
+                            <li>用户协议（如需要）</li>
+                        </ul>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">2. 提交审核</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>在技能详情页面，点击 <strong>提交审核</strong> 或 <strong>发布</strong></li>
+                            <li>填写审核信息</li>
+                            <li>等待平台审核（通常需要几个工作日）</li>
+                            <li>审核通过后，技能即可供用户使用</li>
+                        </ol>
+
+                        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mt-4">
+                            <p class="text-sm text-yellow-700">
+                                <strong>注意：</strong>审核期间，你可以继续在测试环境中使用技能。审核通过后，技能才会正式发布。
+                            </p>
+                        </div>
+                    </section>
+
+                    <section id="best-practices" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">最佳实践</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">意图命名规范</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>使用有意义的名称，如 <code class="bg-gray-100 px-1 rounded">TurnOnKitchenLight</code> 而不是 <code class="bg-gray-100 px-1 rounded">Action1</code></li>
+                            <li>保持命名一致性，统一使用驼峰命名法</li>
+                            <li>避免使用特殊字符和空格</li>
+                            <li>确保意图名称与 Home Voice Box 中的配置完全一致</li>
+                        </ul>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">触发词设计</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>添加多种表达方式，提高识别准确率</li>
+                            <li>使用自然语言，符合用户习惯</li>
+                            <li>避免过于相似的触发词，减少误识别</li>
+                            <li>定期测试和优化触发词</li>
+                        </ul>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">服务稳定性</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>确保服务地址可访问（使用 HTTPS）</li>
+                            <li>配置合理的超时时间</li>
+                            <li>实现错误处理和重试机制</li>
+                            <li>监控服务日志，及时发现问题</li>
+                        </ul>
+                    </section>
+
+                    <section id="troubleshooting" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">故障排除</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">意图识别失败</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>检查意图名称是否与 Home Voice Box 中的配置完全一致</li>
+                            <li>确认触发词是否配置正确</li>
+                            <li>尝试添加更多触发词</li>
+                            <li>检查语音识别日志</li>
+                        </ul>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">服务调用失败</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>检查服务地址是否正确</li>
+                            <li>确认服务是否可访问（使用浏览器或 curl 测试）</li>
+                            <li>查看 Home Voice Box 的日志，确认请求是否到达</li>
+                            <li>检查环境变量配置是否正确</li>
+                        </ul>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">域名校验失败</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>确认 <code class="bg-gray-100 px-1 rounded">ALIGENIE_NAME</code> 和 <code class="bg-gray-100 px-1 rounded">ALIGENIE_CONTENT</code> 环境变量已正确配置</li>
+                            <li>访问 <code class="bg-gray-100 px-1 rounded">https://your-domain.com/aligenie/文件名</code> 检查是否能返回正确内容</li>
+                            <li>确认文件名和内容与平台显示的一致</li>
+                        </ul>
+                    </section>
+
+                    <section id="resources" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">参考资源</h2>
+                        <ul class="space-y-2 text-gray-700">
+                            <li>
+                                <a href="https://aligenie.com/doc" target="_blank" class="text-blue-600 hover:underline">
+                                    天猫精灵开放平台官方文档
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://aligenie.com/doc/guide" target="_blank" class="text-blue-600 hover:underline">
+                                    技能开发指南
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://aligenie.com/doc/api" target="_blank" class="text-blue-600 hover:underline">
+                                    API 接口文档
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/docs/usage.html" class="text-blue-600 hover:underline">
+                                    Home Voice Box 使用指南
+                                </a>
+                            </li>
+                        </ul>
+                    </section>
+                </div>
+            </div>
+        </main>
+
+        <!-- 右侧段落标题导航 -->
+        <aside class="toc-right">
+            <div class="bg-white rounded-lg shadow p-4">
+                <h3 class="font-bold text-gray-800 mb-4 text-sm">本页导航</h3>
+                <nav class="space-y-1 text-sm">
+                    <a href="#overview" class="block text-gray-600 hover:text-blue-600">概述</a>
+                    <a href="#prerequisites" class="block text-gray-600 hover:text-blue-600">前置要求</a>
+                    <a href="#register" class="block text-gray-600 hover:text-blue-600">注册和登录</a>
+                    <a href="#create-skill" class="block text-gray-600 hover:text-blue-600">创建技能</a>
+                    <a href="#configure-intent" class="block text-gray-600 hover:text-blue-600">配置意图</a>
+                    <a href="#configure-service" class="block text-gray-600 hover:text-blue-600">配置服务地址</a>
+                    <a href="#domain-verification" class="block text-gray-600 hover:text-blue-600">域名校验</a>
+                    <a href="#test-skill" class="block text-gray-600 hover:text-blue-600">测试技能</a>
+                    <a href="#submit-review" class="block text-gray-600 hover:text-blue-600">提交审核</a>
+                    <a href="#best-practices" class="block text-gray-600 hover:text-blue-600">最佳实践</a>
+                    <a href="#troubleshooting" class="block text-gray-600 hover:text-blue-600">故障排除</a>
+                    <a href="#resources" class="block text-gray-600 hover:text-blue-600">参考资源</a>
+                </nav>
+            </div>
+        </aside>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-400">Home Voice Box - 让智能家居更智能</p>
+        </div>
+    </footer>
+</body>
+</html>
+
