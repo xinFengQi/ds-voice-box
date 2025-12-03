@@ -27,13 +27,22 @@ export async function onRequest(context) {
     '/api/logout',
     '/api/check-auth',
     '/aligenie/',
-    '/api/tomi' // 天猫精灵回调接口，不需要认证
+    '/api/tomi' // 天猫精灵回调接口，需要验证密钥
   ];
   
   const isPublicPath = 
     publicPaths.includes(pathname) ||
     publicPathPrefixes.some(prefix => pathname.startsWith(prefix)) ||
     isLoginPath;
+  
+  // 对于 /api/tomi 接口，初始化意图映射缓存（异步，不阻塞请求）
+  if (pathname.startsWith('/api/tomi')) {
+    try {
+      await getCache(context);
+    } catch (error) {
+      console.error('[Middleware] 初始化缓存失败:', error);
+    }
+  }
   
   if (isPublicPath) {
     return context.next();
@@ -44,16 +53,6 @@ export async function onRequest(context) {
   const isStaticResource = staticExtensions.some(ext => pathname.toLowerCase().endsWith(ext));
   if (isStaticResource) {
     return context.next();
-  }
-  
-  // 初始化意图映射缓存（异步，不阻塞请求）
-  // 对于需要快速查询的接口（如 /api/intent-mapping），确保缓存已初始化
-  if (pathname.startsWith('/api/intent-mapping') || pathname.startsWith('/api/tomi')) {
-    try {
-      await getCache(context);
-    } catch (error) {
-      console.error('[Middleware] 初始化缓存失败:', error);
-    }
   }
   
   // 对于 HTML 页面，检查认证（排除首页和登录路径）

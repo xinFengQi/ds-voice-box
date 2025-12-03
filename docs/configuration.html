@@ -188,6 +188,27 @@
                                 </div>
                             </div>
                         </div>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-6">可选的环境变量</h3>
+                        <div class="space-y-4">
+                            <div class="border-l-4 border-green-500 pl-4">
+                                <h4 class="font-semibold text-gray-800">TOMI_SECRET_KEY</h4>
+                                <p class="text-gray-700 text-sm mt-1">天猫精灵接口验证密钥（可选，但强烈推荐设置）</p>
+                                <p class="text-gray-600 text-sm mt-1">用于验证天猫精灵请求的安全性。如果设置了此密钥，天猫精灵平台需要在请求头中配置相同的密钥。</p>
+                                <p class="text-gray-600 text-sm mt-1">请求头格式：</p>
+                                <ul class="list-disc list-inside text-sm text-gray-600 ml-4 mt-1">
+                                    <li><code class="bg-gray-100 px-1 rounded">X-Tomi-Secret: your_secret_key_here</code></li>
+                                </ul>
+                                <div class="code-block mt-2">
+                                    <code>TOMI_SECRET_KEY=your_random_secret_key_here</code>
+                                </div>
+                                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-3 mt-2">
+                                    <p class="text-sm text-yellow-700">
+                                        <strong>安全提示：</strong>建议设置一个复杂的随机字符串作为密钥，并在天猫精灵平台配置相同的请求头。如果不设置此变量，接口将不进行密钥验证（不推荐生产环境）。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </section>
 
                     <section id="kv-config" class="section mb-8">

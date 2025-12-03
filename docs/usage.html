@@ -200,7 +200,23 @@
                             </li>
                             <li>
                                 <strong>配置服务地址</strong>
-                                <p class="text-sm text-gray-600 ml-4">设置服务地址为：<code class="bg-gray-100 px-1 rounded">https://ds-voice-box.pages.dev/api/tomi</code></p>
+                                <p class="text-sm text-gray-600 ml-4">
+                                    <ul class="list-disc list-inside ml-4 mt-1">
+                                        <li>设置服务地址为：<code class="bg-gray-100 px-1 rounded">https://your-project.pages.dev/api/tomi</code>（将 <code class="bg-gray-100 px-1 rounded">your-project.pages.dev</code> 替换为你的实际域名）</li>
+                                        <li>请求方式：<strong>POST</strong></li>
+                                        <li>如果配置了 <code class="bg-gray-100 px-1 rounded">TOMI_SECRET_KEY</code> 环境变量，需要在请求头中配置密钥：
+                                            <ul class="list-disc list-inside ml-4 mt-1">
+                                                <li>请求头名称：<code class="bg-gray-100 px-1 rounded">X-Tomi-Secret</code></li>
+                                                <li>请求头值：<code class="bg-gray-100 px-1 rounded">your_secret_key_here</code>（与 <code class="bg-gray-100 px-1 rounded">TOMI_SECRET_KEY</code> 环境变量的值一致）</li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </p>
+                                <div class="bg-blue-50 border-l-4 border-blue-500 p-3 mt-2 ml-4">
+                                    <p class="text-sm text-blue-700">
+                                        <strong>安全提示：</strong>如果未设置 <code class="bg-blue-100 px-1 rounded">TOMI_SECRET_KEY</code> 环境变量，则不需要配置请求头。但为了安全，强烈建议在生产环境中设置密钥验证。详细配置方法请参考 <a href="/docs/aligenie-setup.html" class="text-blue-600 hover:underline">天猫精灵平台配置指南</a>。
+                                    </p>
+                                </div>
                             </li>
                             <li>
                                 <strong>完成域名校验</strong>
@@ -249,7 +265,7 @@
                             <li>在 Cloudflare Dashboard 中查看 Functions 日志，了解请求详情</li>
                             <li>检查 Home Assistant 日志，确认 API 调用是否成功</li>
                             <li>在管理页面查看意图映射是否正确配置</li>
-                            <li>使用 <code class="bg-gray-100 px-1 rounded">GET /api/intent-mapping?intentName=xxx</code> 测试映射查询</li>
+                            <li>在管理页面查看意图映射是否正确配置</li>
                         </ul>
                     </section>
 

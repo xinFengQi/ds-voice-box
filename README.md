@@ -65,7 +65,10 @@ npx wrangler pages dev . --ip 0.0.0.0 --kv INTENTS_KV=your_kv_namespace_id
 | `HA_URL` | Home Assistant 服务器地址 | 如：`http://192.168.1.100:8123` |
 | `HA_TOKEN` | Home Assistant 长期访问令牌 | Home Assistant → 设置 → 人员与区域 → 长期访问令牌 |
 | `ADMIN_PASSWORD` | 管理员登录密码 | 自定义 |
+| `LOGIN_PATH` | 登录页面的访问路径 | 自定义，如 `aaa` |
 | `KV_BINDING_NAME` | KV Namespace 绑定名称 | 见下方 KV 配置 |
+| `TOMI_SECRET_KEY` | 天猫精灵接口验证密钥（可选，强烈推荐） | 自定义随机字符串 |
+| `TOMI_SECRET_KEY` | 天猫精灵接口验证密钥（可选） | 自定义随机字符串，强烈推荐设置 |
 
 ### KV 配置步骤
 
@@ -82,9 +85,9 @@ npx wrangler pages dev . --ip 0.0.0.0 --kv INTENTS_KV=your_kv_namespace_id
 
 ## 📖 使用指南
 
-1. **登录系统**：访问网站首页，使用配置的 `ADMIN_PASSWORD` 登录
+1. **登录系统**：访问 `https://your-domain.pages.dev/LOGIN_PATH`，使用配置的 `ADMIN_PASSWORD` 登录
 2. **创建意图映射**：在管理页面添加意图标识、选择设备、选择接口、配置回复内容
-3. **配置天猫精灵**：在天猫精灵开放平台中配置技能，设置服务地址为 `https://ds-voice-box.pages.dev/api/tomi`
+3. **配置天猫精灵**：在天猫精灵开放平台中配置技能，设置服务地址为 `https://your-domain.pages.dev/api/tomi`。如果配置了 `TOMI_SECRET_KEY`，需要在平台中配置相同的请求头（详见使用指南）
 4. **测试语音控制**：对天猫精灵说出配置的语音指令
 
 ## 📚 文档

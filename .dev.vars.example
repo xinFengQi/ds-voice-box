@@ -41,6 +41,17 @@ LOGIN_PATH=aaa
 #   - 生产环境：在 Cloudflare Dashboard > 你的项目 > Settings > Variables and Secrets 中配置
 ADMIN_PASSWORD=your_admin_password_here
 
+# --- 天猫精灵接口密钥（可选，用于增强安全性）---
+# 用于验证天猫精灵请求的密钥，建议设置一个随机字符串
+# 如果设置了此密钥，天猫精灵平台需要在请求头中配置相同的密钥
+# 请求头格式：
+#   - X-Tomi-Secret: your_secret_key_here
+# 配置位置：
+#   - 本地开发：在此文件（.dev.vars）中配置
+#   - 生产环境：在 Cloudflare Dashboard > 你的项目 > Settings > Variables and Secrets 中配置
+# 如果不设置此变量，则不会进行密钥验证（不推荐生产环境）
+TOMI_SECRET_KEY=your_random_secret_key_here
+
 # --- KV 配置（必需，用于持久化存储意图数据）---
 # KV Binding 名称（必需）
 # 配置位置：

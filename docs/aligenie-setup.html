@@ -255,6 +255,26 @@
                             <li><strong>Content-Type</strong>：<code class="bg-gray-100 px-1 rounded">application/json</code></li>
                             <li><strong>字符编码</strong>：<code class="bg-gray-100 px-1 rounded">UTF-8</code></li>
                         </ul>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">3. 配置请求头密钥（可选，但强烈推荐）</h3>
+                        <p class="text-gray-700 mb-4">
+                            为了增强安全性，建议配置请求头密钥验证：
+                        </p>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>在 Home Voice Box 的环境变量中设置 <code class="bg-gray-100 px-1 rounded">TOMI_SECRET_KEY</code>（参考 <a href="/docs/configuration.html" class="text-blue-600 hover:underline">配置指南</a>）</li>
+                            <li>在天猫精灵平台的服务配置中，添加自定义请求头：
+                                <ul class="list-disc list-inside ml-4 mt-2">
+                                    <li>请求头名称：<code class="bg-gray-100 px-1 rounded">X-Tomi-Secret</code></li>
+                                    <li>请求头值：<code class="bg-gray-100 px-1 rounded">your_secret_key_here</code>（与 <code class="bg-gray-100 px-1 rounded">TOMI_SECRET_KEY</code> 环境变量的值一致）</li>
+                                </ul>
+                            </li>
+                            <li>保存配置</li>
+                        </ol>
+                        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mt-4">
+                            <p class="text-sm text-blue-700">
+                                <strong>说明：</strong>如果未设置 <code class="bg-blue-100 px-1 rounded">TOMI_SECRET_KEY</code> 环境变量，则不需要配置请求头。但为了安全，强烈建议在生产环境中设置密钥验证。
+                            </p>
+                        </div>
                     </section>
 
                     <section id="domain-verification" class="section mb-8">

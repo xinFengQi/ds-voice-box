@@ -209,24 +209,6 @@
                             <p class="text-sm text-gray-600 mt-2">状态码：200</p>
                         </div>
 
-                        <div class="border rounded-lg p-4 mb-4">
-                            <h3 class="font-semibold text-gray-800 mb-2">GET /api/intent-mapping?intentName=xxx</h3>
-                            <p class="text-sm text-gray-600 mb-2">快速查询意图映射（从内存缓存读取）</p>
-                            <p class="text-sm text-green-600 mb-2">✓ 无需认证</p>
-                            <div class="mt-2">
-                                <p class="text-sm font-medium text-gray-700 mb-1">查询参数：</p>
-                                <ul class="list-disc list-inside text-sm text-gray-700 ml-4">
-                                    <li><code class="bg-gray-100 px-1 rounded">intentName</code>：意图标识（必需）</li>
-                                </ul>
-                            </div>
-                            <div class="mt-2">
-                                <p class="text-sm font-medium text-gray-700 mb-1">响应（成功）：</p>
-                                <div class="code-block">
-                                    <code>{<br>  "id": 1,<br>  "intentName": "TurnOnLight",<br>  "apiName": "turnOnLight",<br>  "apiLabel": "打开灯光",<br>  "entityId": "light.kitchen",<br>  "replyContent": "好的，已为您打开灯光"<br>}</code>
-                                </div>
-                            </div>
-                            <p class="text-sm text-gray-600 mt-2">状态码：200（成功）或 404（未找到）</p>
-                        </div>
                     </section>
 
                     <section id="devices" class="section mb-8">
@@ -265,7 +247,14 @@
                         <div class="border rounded-lg p-4 mb-4">
                             <h3 class="font-semibold text-gray-800 mb-2">POST /api/tomi</h3>
                             <p class="text-sm text-gray-600 mb-2">接收天猫精灵的语音指令</p>
-                            <p class="text-sm text-green-600 mb-2">✓ 无需认证</p>
+                            <p class="text-sm text-yellow-600 mb-2">⚠️ 如果配置了 TOMI_SECRET_KEY，需要在请求头中携带密钥</p>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-700 mb-1">请求头（如果配置了 TOMI_SECRET_KEY）：</p>
+                                <p class="text-sm text-gray-700 mb-2">
+                                    <code class="bg-gray-100 px-1 rounded">X-Tomi-Secret: your_secret_key</code>
+                                </p>
+                                <p class="text-sm text-gray-600 mb-2">密钥值必须与 <code class="bg-gray-100 px-1 rounded">TOMI_SECRET_KEY</code> 环境变量一致</p>
+                            </div>
                             <div class="mt-2">
                                 <p class="text-sm font-medium text-gray-700 mb-1">请求体（示例）：</p>
                                 <div class="code-block">
@@ -282,6 +271,11 @@
                             <p class="text-sm text-gray-600 mt-2">
                                 系统会自动：提取意图标识 → 查找映射 → 调用 Home Assistant API → 返回回复内容
                             </p>
+                            <div class="bg-blue-50 border-l-4 border-blue-500 p-3 mt-2">
+                                <p class="text-sm text-blue-700">
+                                    <strong>安全提示：</strong>强烈建议在生产环境中配置 <code class="bg-blue-100 px-1 rounded">TOMI_SECRET_KEY</code> 环境变量，并在天猫精灵平台配置相同的请求头。详细配置方法请参考 <a href="/docs/aligenie-setup.html#configure-service" class="text-blue-600 hover:underline">天猫精灵平台配置指南</a>。
+                                </p>
+                            </div>
                         </div>
 
                         <div class="border rounded-lg p-4 mb-4">

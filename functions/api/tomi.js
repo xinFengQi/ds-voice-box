@@ -6,6 +6,16 @@ import { getIntentMapping } from '../utils/intent-cache.js';
 import { turnOnLight, turnOffLight, toggleLight } from '../utils/ha-light-api.js';
 import { turnOnFan, turnOffFan, toggleFan } from '../utils/ha-fan-api.js';
 
+// API 名称到执行函数的映射
+const apiHandlerMap = new Map([
+  ['turnOnLight', turnOnLight],
+  ['turnOffLight', turnOffLight],
+  ['toggleLight', toggleLight],
+  ['turnOnFan', turnOnFan],
+  ['turnOffFan', turnOffFan],
+  ['toggleFan', toggleFan]
+]);
+
 /**
  * 根据映射信息调用对应的 Home Assistant API
  * @param {Object} env - 环境变量
@@ -15,22 +25,12 @@ import { turnOnFan, turnOffFan, toggleFan } from '../utils/ha-fan-api.js';
 async function executeMapping(env, mapping) {
   const { apiName, entityId } = mapping;
   
-  switch (apiName) {
-    case 'turnOnLight':
-      return await turnOnLight(env, entityId);
-    case 'turnOffLight':
-      return await turnOffLight(env, entityId);
-    case 'toggleLight':
-      return await toggleLight(env, entityId);
-    case 'turnOnFan':
-      return await turnOnFan(env, entityId);
-    case 'turnOffFan':
-      return await turnOffFan(env, entityId);
-    case 'toggleFan':
-      return await toggleFan(env, entityId);
-    default:
-      throw new Error(`不支持的接口: ${apiName}`);
+  const handler = apiHandlerMap.get(apiName);
+  if (!handler) {
+    throw new Error(`不支持的接口: ${apiName}`);
   }
+  
+  return await handler(env, entityId);
 }
 
 /**
@@ -92,6 +92,40 @@ function buildResponse(text) {
 }
 
 export async function onRequestPost(context) {
+  // 验证请求头中的密钥（如果配置了 TOMI_SECRET_KEY）
+  const secretKey = context.env.TOMI_SECRET_KEY;
+  if (secretKey) {
+    // 只支持 X-Tomi-Secret 请求头
+    const requestKey = context.request.headers.get('X-Tomi-Secret');
+    
+    if (requestKey !== secretKey) {
+      // 返回天猫精灵格式的错误响应
+      return new Response(JSON.stringify({
+        returnCode: "0",
+        returnValue: {
+          resultType: "RESULT",
+          executeCode: "SUCCESS",
+          msgInfo: "",
+          gwCommands: [{
+            commandDomain: "AliGenie.Speaker",
+            commandName: "Speak",
+            payload: {
+              type: "text",
+              text: "抱歉，请求验证失败",
+              expectSpeech: false,
+              needLight: true,
+              needVoice: true,
+              wakeupType: "continuity"
+            }
+          }]
+        }
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json;charset=UTF-8" }
+      });
+    }
+  }
+
   try {
     // 读取请求体
     const body = await context.request.json();
