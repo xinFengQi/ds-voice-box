@@ -104,13 +104,13 @@ export async function onRequestGet(context) {
   
   // 检查路径是否匹配环境变量中的 LOGIN_PATH
   if (!loginPath) {
-    // 如果没有配置 LOGIN_PATH，返回 404
-    return new Response('Not Found', { status: 404 });
+    // 如果没有配置 LOGIN_PATH，让请求继续（可能是静态文件）
+    return context.next();
   }
   
   if (path !== loginPath) {
-    // 路径不匹配，返回 404
-    return new Response('Not Found', { status: 404 });
+    // 路径不匹配，让请求继续（可能是静态文件或其他路由）
+    return context.next();
   }
   
   // 路径匹配，返回登录页

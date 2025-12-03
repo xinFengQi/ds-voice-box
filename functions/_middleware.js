@@ -15,19 +15,27 @@ export async function onRequest(context) {
   // 检查是否是登录路径（由 functions/[path].js 处理）
   const isLoginPath = loginPath && pathname === `/${loginPath}`;
   
-  // 排除文档页面（首页）、docs 目录、登录路径、登录相关 API 和天猫精灵接口
-  if (
-    pathname === '/' ||
-    pathname === '/index.html' ||
-    pathname === '/docs.html' ||
-    pathname.startsWith('/docs/') ||
-    isLoginPath ||
-    pathname.startsWith('/api/login') ||
-    pathname.startsWith('/api/logout') ||
-    pathname.startsWith('/api/check-auth') ||
-    pathname.startsWith('/aligenie/') ||
-    pathname.startsWith('/api/tomi') // 天猫精灵回调接口，不需要认证
-  ) {
+  // 排除公开访问的路径：文档页面、docs 目录、登录路径、登录相关 API 和天猫精灵接口
+  const publicPaths = [
+    '/',
+    '/index.html'
+  ];
+  
+  const publicPathPrefixes = [
+    '/docs/',
+    '/api/login',
+    '/api/logout',
+    '/api/check-auth',
+    '/aligenie/',
+    '/api/tomi' // 天猫精灵回调接口，不需要认证
+  ];
+  
+  const isPublicPath = 
+    publicPaths.includes(pathname) ||
+    publicPathPrefixes.some(prefix => pathname.startsWith(prefix)) ||
+    isLoginPath;
+  
+  if (isPublicPath) {
     return context.next();
   }
   
