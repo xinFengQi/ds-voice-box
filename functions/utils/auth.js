@@ -115,11 +115,11 @@ export function verifyPassword(env, password) {
  * @returns {Response|null} 如果未认证返回响应，否则返回 null
  */
 export function requireAuth(request, options = {}) {
-  const { redirect = false } = options;
+  const { redirect = false, env } = options;
   
   if (!isAuthenticated(request)) {
     if (redirect) {
-      // 对于 HTML 页面，重定向到登录页（根路径）
+      // 对于 HTML 页面，重定向到首页（文档页），而不是登录页
       return new Response(null, {
         status: 302,
         headers: {

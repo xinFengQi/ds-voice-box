@@ -499,6 +499,7 @@
                     // 检查认证状态
                     const authenticated = await this.checkAuth();
                     if (!authenticated) {
+                        // 未认证时跳转到首页（文档页）
                         window.location.href = '/';
                         return;
                     }

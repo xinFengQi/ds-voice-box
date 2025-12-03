@@ -3,94 +3,459 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登录 - Home Voice Box</title>
-    <!-- 引入 Tailwind CSS (CDN) -->
+    <title>Home Voice Box - 完整教程</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 引入 Alpine.js (CDN) -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+        .code-block {
+            background-color: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+        .code-block code {
+            color: #e2e8f0;
+        }
+        .section {
+            scroll-margin-top: 2rem;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md" x-data="loginApp()">
-        <h1 class="text-2xl font-bold mb-6 text-center text-gray-800">系统登录</h1>
-        
-        <!-- 错误提示 -->
-        <div 
-            x-show="errorMessage" 
-            x-cloak
-            class="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
-            <span x-text="errorMessage"></span>
-        </div>
-        
-        <!-- 登录表单 -->
-        <form @submit.prevent="handleLogin" class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">密码</label>
-                <input 
-                    type="password" 
-                    x-model="password"
-                    @input="errorMessage = ''"
-                    placeholder="请输入登录密码"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                    autofocus>
+<body class="bg-gray-50">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50" x-data="{ mobileMenuOpen: false }">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <h1 class="text-xl font-bold text-gray-800">Home Voice Box</h1>
+                <div class="hidden md:flex space-x-4">
+                    <a href="#introduction" class="text-gray-600 hover:text-blue-600">介绍</a>
+                    <a href="#features" class="text-gray-600 hover:text-blue-600">功能</a>
+                    <a href="#installation" class="text-gray-600 hover:text-blue-600">安装</a>
+                    <a href="#configuration" class="text-gray-600 hover:text-blue-600">配置</a>
+                    <a href="#usage" class="text-gray-600 hover:text-blue-600">使用</a>
+                    <a href="#api" class="text-gray-600 hover:text-blue-600">API</a>
+                </div>
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
             </div>
-            
-            <button 
-                type="submit"
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-200 disabled:opacity-50"
-                :disabled="loading">
-                <span x-show="!loading">登录</span>
-                <span x-show="loading">登录中...</span>
-            </button>
-        </form>
+            <div x-show="mobileMenuOpen" x-cloak class="md:hidden mt-4 space-y-2">
+                <a href="#introduction" class="block text-gray-600 hover:text-blue-600">介绍</a>
+                <a href="#features" class="block text-gray-600 hover:text-blue-600">功能</a>
+                <a href="#installation" class="block text-gray-600 hover:text-blue-600">安装</a>
+                <a href="#configuration" class="block text-gray-600 hover:text-blue-600">配置</a>
+                <a href="#usage" class="block text-gray-600 hover:text-blue-600">使用</a>
+                <a href="#api" class="block text-gray-600 hover:text-blue-600">API</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- 项目介绍 -->
+        <section id="introduction" class="section mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">项目介绍</h2>
+            <div class="bg-white rounded-lg shadow p-6">
+                <p class="text-gray-700 mb-4">
+                    <strong>Home Voice Box</strong> 是一个基于 Cloudflare Pages 的 Serverless 智能家居语音控制平台。
+                    它连接天猫精灵和 Home Assistant，让你可以通过语音指令控制家中的智能设备。
+                </p>
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 my-4">
+                    <p class="text-blue-700">
+                        <strong>核心特性：</strong>无需服务器、自动部署、内存缓存、安全认证
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 功能特性 -->
+        <section id="features" class="section mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">功能特性</h2>
+            <div class="bg-white rounded-lg shadow p-6">
+                <ul class="space-y-3 text-gray-700">
+                    <li class="flex items-start">
+                        <span class="text-green-500 mr-2">✓</span>
+                        <span><strong>语音控制</strong>：通过天猫精灵语音指令控制 Home Assistant 设备</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-500 mr-2">✓</span>
+                        <span><strong>意图映射管理</strong>：可视化界面管理天猫精灵意图与设备操作的映射关系</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-500 mr-2">✓</span>
+                        <span><strong>内存缓存</strong>：意图映射数据存储在内存中，查询速度极快</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-500 mr-2">✓</span>
+                        <span><strong>安全认证</strong>：管理员密码保护，所有接口和页面都需要登录</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-500 mr-2">✓</span>
+                        <span><strong>设备支持</strong>：支持灯光和风扇设备的开关、切换等操作</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-500 mr-2">✓</span>
+                        <span><strong>自定义回复</strong>：可以为每个意图配置自定义的语音回复内容</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-500 mr-2">✓</span>
+                        <span><strong>Serverless 架构</strong>：基于 Cloudflare Pages，无需维护服务器</span>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 安装部署 -->
+        <section id="installation" class="section mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">安装部署</h2>
+            <div class="bg-white rounded-lg shadow p-6 space-y-6">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">1. 克隆项目</h3>
+                    <div class="code-block">
+                        <code>git clone https://github.com/xinFengQi/ds-voice-box.git<br>cd ds-voice-box</code>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">2. 安装依赖</h3>
+                    <p class="text-gray-700 mb-2">安装 Wrangler CLI（用于本地开发和部署）：</p>
+                    <div class="code-block">
+                        <code>npm install -g wrangler</code>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">3. 配置环境变量</h3>
+                    <p class="text-gray-700 mb-2">复制示例配置文件并填入实际值：</p>
+                    <div class="code-block">
+                        <code>cp .dev.vars.example .dev.vars<br># 编辑 .dev.vars 文件，填入你的配置</code>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">4. 本地开发</h3>
+                    <p class="text-gray-700 mb-2">启动本地开发服务器：</p>
+                    <div class="code-block">
+                        <code># 基本启动<br>npx wrangler pages dev . --ip 0.0.0.0<br><br># 如果需要使用 KV（本地开发）<br>npx wrangler pages dev . --ip 0.0.0.0 --kv INTENTS_KV=your_kv_namespace_id</code>
+                    </div>
+                    <p class="text-gray-600 text-sm mt-2">访问 <code class="bg-gray-100 px-1 rounded">http://localhost:8788</code></p>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">5. 部署到 Cloudflare Pages</h3>
+                    <p class="text-gray-700 mb-2">将项目推送到 Git 仓库，然后在 Cloudflare Dashboard 中：</p>
+                    <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                        <li>进入 <strong>Workers & Pages</strong> → <strong>Create application</strong> → <strong>Pages</strong></li>
+                        <li>连接到你的 Git 仓库</li>
+                        <li>选择项目目录，点击 <strong>Save and Deploy</strong></li>
+                        <li>部署完成后，在项目设置中配置环境变量（见下方配置章节）</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- 配置说明 -->
+        <section id="configuration" class="section mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">配置说明</h2>
+            <div class="bg-white rounded-lg shadow p-6 space-y-6">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">必需的环境变量</h3>
+                    <div class="space-y-4">
+                        <div class="border-l-4 border-blue-500 pl-4">
+                            <h4 class="font-semibold text-gray-800">ALIGENIE_NAME 和 ALIGENIE_CONTENT</h4>
+                            <p class="text-gray-700 text-sm mt-1">天猫精灵域名校验文件配置</p>
+                            <p class="text-gray-600 text-sm mt-1">获取方式：天猫精灵开放平台 → 技能开发 → 域名校验</p>
+                        </div>
+                        <div class="border-l-4 border-blue-500 pl-4">
+                            <h4 class="font-semibold text-gray-800">HA_URL 和 HA_TOKEN</h4>
+                            <p class="text-gray-700 text-sm mt-1">Home Assistant 服务器地址和长期访问令牌</p>
+                            <p class="text-gray-600 text-sm mt-1">获取方式：Home Assistant → 设置 → 人员与区域 → 长期访问令牌 → 创建令牌</p>
+                        </div>
+                        <div class="border-l-4 border-blue-500 pl-4">
+                            <h4 class="font-semibold text-gray-800">ADMIN_PASSWORD</h4>
+                            <p class="text-gray-700 text-sm mt-1">管理员登录密码，用于访问管理页面和 API</p>
+                        </div>
+                        <div class="border-l-4 border-blue-500 pl-4">
+                            <h4 class="font-semibold text-gray-800">KV_BINDING_NAME</h4>
+                            <p class="text-gray-700 text-sm mt-1">KV Namespace 绑定名称，用于持久化存储意图映射数据</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">配置 KV Namespace</h3>
+                    <div class="space-y-3 text-gray-700">
+                        <p><strong>步骤 1：</strong>创建 KV Namespace</p>
+                        <div class="code-block">
+                            <code># 通过 Dashboard<br>Workers & Pages → KV → Create a namespace<br><br># 或通过 CLI<br>wrangler kv:namespace create "INTENTS_KV"</code>
+                        </div>
+                        <p><strong>步骤 2：</strong>绑定到项目</p>
+                        <p class="text-sm">在 Cloudflare Dashboard → 你的项目 → Settings → Variables → KV Namespace Bindings 中添加绑定</p>
+                        <p><strong>步骤 3：</strong>设置 KV_BINDING_NAME 环境变量</p>
+                        <p class="text-sm">变量值必须与步骤 2 中的绑定名称完全一致</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">配置位置</h3>
+                    <ul class="space-y-2 text-gray-700">
+                        <li><strong>本地开发：</strong>在 <code class="bg-gray-100 px-1 rounded">.dev.vars</code> 文件中配置</li>
+                        <li><strong>生产环境：</strong>在 Cloudflare Dashboard → 你的项目 → Settings → Variables and Secrets 中配置</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 使用指南 -->
+        <section id="usage" class="section mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">使用指南</h2>
+            <div class="bg-white rounded-lg shadow p-6 space-y-6">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">1. 登录系统</h3>
+                    <p class="text-gray-700 mb-2">访问网站首页，使用配置的 <code class="bg-gray-100 px-1 rounded">ADMIN_PASSWORD</code> 登录</p>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">2. 创建意图映射</h3>
+                    <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                        <li>点击 <strong>"添加映射"</strong> 按钮</li>
+                        <li>填写 <strong>意图标识</strong>（对应天猫精灵的意图名称，如 <code class="bg-gray-100 px-1 rounded">TurnOnLight</code>）</li>
+                        <li>选择 <strong>实体设备</strong>（从 Home Assistant 获取的设备列表）</li>
+                        <li>选择 <strong>调用接口</strong>（根据设备类型自动筛选可用接口）</li>
+                        <li>填写 <strong>回复内容</strong>（可选，天猫精灵执行操作后的语音回复）</li>
+                        <li>点击 <strong>"保存"</strong></li>
+                    </ol>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">3. 在天猫精灵平台配置</h3>
+                    <p class="text-gray-700 mb-2">在天猫精灵开放平台中：</p>
+                    <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                        <li>创建技能，配置意图（意图名称必须与系统中配置的意图标识一致）</li>
+                        <li>设置服务地址为：<code class="bg-gray-100 px-1 rounded">https://ds-voice-box.pages.dev/api/tomi</code></li>
+                        <li>完成域名校验（系统会自动处理校验文件）</li>
+                    </ol>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">4. 测试语音控制</h3>
+                    <p class="text-gray-700 mb-2">对天猫精灵说出配置的语音指令，系统会：</p>
+                    <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                        <li>接收天猫精灵的请求</li>
+                        <li>从内存缓存中查找意图映射</li>
+                        <li>调用对应的 Home Assistant API</li>
+                        <li>返回配置的回复内容</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- API 文档 -->
+        <section id="api" class="section mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">API 文档</h2>
+            <div class="bg-white rounded-lg shadow p-6 space-y-6">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">认证相关</h3>
+                    <div class="space-y-4">
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800">POST /api/login</h4>
+                            <p class="text-sm text-gray-600 mt-1">用户登录</p>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-700">请求体：</p>
+                                <div class="code-block mt-1">
+                                    <code>{ "password": "your_password" }</code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800">POST /api/logout</h4>
+                            <p class="text-sm text-gray-600 mt-1">用户登出</p>
+                        </div>
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800">GET /api/check-auth</h4>
+                            <p class="text-sm text-gray-600 mt-1">检查认证状态</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">意图映射管理</h3>
+                    <div class="space-y-4">
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800">GET /api/intents</h4>
+                            <p class="text-sm text-gray-600 mt-1">获取所有意图映射（需要认证）</p>
+                        </div>
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800">POST /api/intents</h4>
+                            <p class="text-sm text-gray-600 mt-1">创建新意图映射（需要认证）</p>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-700">请求体：</p>
+                                <div class="code-block mt-1">
+                                    <code>{<br>  "intentName": "TurnOnLight",<br>  "apiName": "turnOnLight",<br>  "apiLabel": "打开灯光",<br>  "entityId": "light.kitchen",<br>  "replyContent": "好的，已为您打开灯光"<br>}</code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800">PUT /api/intents/:id</h4>
+                            <p class="text-sm text-gray-600 mt-1">更新意图映射（需要认证）</p>
+                        </div>
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800">DELETE /api/intents/:id</h4>
+                            <p class="text-sm text-gray-600 mt-1">删除意图映射（需要认证）</p>
+                        </div>
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800">GET /api/intent-mapping?intentName=xxx</h4>
+                            <p class="text-sm text-gray-600 mt-1">快速查询意图映射（从内存缓存）</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">设备管理</h3>
+                    <div class="space-y-4">
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800">GET /api/ha-entities</h4>
+                            <p class="text-sm text-gray-600 mt-1">获取所有 Home Assistant 设备（需要认证）</p>
+                        </div>
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800">GET /api/ha-entities?domain=light</h4>
+                            <p class="text-sm text-gray-600 mt-1">获取指定类型的设备（需要认证）</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">天猫精灵接口</h3>
+                    <div class="space-y-4">
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800">POST /api/tomi</h4>
+                            <p class="text-sm text-gray-600 mt-1">接收天猫精灵的语音指令（无需认证）</p>
+                            <p class="text-sm text-gray-600 mt-1">系统会自动：</p>
+                            <ul class="list-disc list-inside text-sm text-gray-600 ml-4 mt-1">
+                                <li>提取意图标识</li>
+                                <li>从内存缓存查找映射</li>
+                                <li>调用对应的 Home Assistant API</li>
+                                <li>返回语音回复</li>
+                            </ul>
+                        </div>
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800">GET /aligenie/:filename</h4>
+                            <p class="text-sm text-gray-600 mt-1">天猫精灵域名校验文件（无需认证）</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 支持的设备类型 -->
+        <section id="devices" class="section mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">支持的设备类型</h2>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="border rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">灯光设备 (light)</h3>
+                        <ul class="space-y-2 text-sm text-gray-700">
+                            <li>• <code class="bg-gray-100 px-1 rounded">turnOnLight</code> - 打开灯光</li>
+                            <li>• <code class="bg-gray-100 px-1 rounded">turnOffLight</code> - 关闭灯光</li>
+                            <li>• <code class="bg-gray-100 px-1 rounded">toggleLight</code> - 切换灯光</li>
+                        </ul>
+                    </div>
+                    <div class="border rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">风扇设备 (fan)</h3>
+                        <ul class="space-y-2 text-sm text-gray-700">
+                            <li>• <code class="bg-gray-100 px-1 rounded">turnOnFan</code> - 打开风扇</li>
+                            <li>• <code class="bg-gray-100 px-1 rounded">turnOffFan</code> - 关闭风扇</li>
+                            <li>• <code class="bg-gray-100 px-1 rounded">toggleFan</code> - 切换风扇</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-4 p-3 bg-yellow-50 border-l-4 border-yellow-500">
+                    <p class="text-sm text-yellow-700">
+                        <strong>提示：</strong>可以通过扩展 <code class="bg-yellow-100 px-1 rounded">functions/utils/</code> 目录下的工具类来支持更多设备类型。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 常见问题 -->
+        <section id="faq" class="section mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">常见问题</h2>
+            <div class="bg-white rounded-lg shadow p-6 space-y-4">
+                <div class="border-l-4 border-blue-500 pl-4">
+                    <h3 class="font-semibold text-gray-800">Q: 如何添加新的设备类型支持？</h3>
+                    <p class="text-gray-700 text-sm mt-1">A: 在 <code class="bg-gray-100 px-1 rounded">functions/utils/</code> 目录下创建新的工具类文件（如 <code class="bg-gray-100 px-1 rounded">ha-switch-api.js</code>），然后在 <code class="bg-gray-100 px-1 rounded">functions/api/tomi.js</code> 中导入并使用。</p>
+                </div>
+                <div class="border-l-4 border-blue-500 pl-4">
+                    <h3 class="font-semibold text-gray-800">Q: 本地开发时 KV 无法使用？</h3>
+                    <p class="text-gray-700 text-sm mt-1">A: 确保使用 <code class="bg-gray-100 px-1 rounded">--kv</code> 参数启动开发服务器，并且 KV namespace ID 与生产环境使用同一个。</p>
+                </div>
+                <div class="border-l-4 border-blue-500 pl-4">
+                    <h3 class="font-semibold text-gray-800">Q: 如何重置管理员密码？</h3>
+                    <p class="text-gray-700 text-sm mt-1">A: 在 Cloudflare Dashboard 中修改 <code class="bg-gray-100 px-1 rounded">ADMIN_PASSWORD</code> 环境变量，然后重新部署。</p>
+                </div>
+                <div class="border-l-4 border-blue-500 pl-4">
+                    <h3 class="font-semibold text-gray-800">Q: 意图映射数据存储在哪里？</h3>
+                    <p class="text-gray-700 text-sm mt-1">A: 数据存储在 Cloudflare KV 中，同时会在内存中维护一个缓存以提高查询速度。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 贡献 -->
+        <section id="contributing" class="section mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">贡献</h2>
+            <div class="bg-white rounded-lg shadow p-6">
+                <p class="text-gray-700 mb-4">
+                    欢迎提交 Issue 和 Pull Request！如果你有任何问题或建议，请：
+                </p>
+                <ul class="space-y-2 text-gray-700 mb-4">
+                    <li>• 在 GitHub 上提交 Issue</li>
+                    <li>• Fork 项目并提交 Pull Request</li>
+                    <li>• 分享你的使用经验和改进建议</li>
+                </ul>
+                <div class="mt-4 p-3 bg-blue-50 border-l-4 border-blue-500">
+                    <p class="text-sm text-blue-700">
+                        <strong>GitHub 仓库：</strong>
+                        <a href="https://github.com/xinFengQi/ds-voice-box" target="_blank" class="text-blue-600 hover:underline">
+                            https://github.com/xinFengQi/ds-voice-box
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 许可证 -->
+        <section id="license" class="section mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">许可证</h2>
+            <div class="bg-white rounded-lg shadow p-6">
+                <p class="text-gray-700">
+                    本项目采用 MIT 许可证。详情请查看 LICENSE 文件。
+                </p>
+            </div>
+        </section>
     </div>
 
-    <script>
-        function loginApp() {
-            return {
-                password: '',
-                errorMessage: '',
-                loading: false,
-                
-                async handleLogin() {
-                    if (!this.password) {
-                        this.errorMessage = '请输入密码';
-                        return;
-                    }
-                    
-                    this.loading = true;
-                    this.errorMessage = '';
-                    
-                    try {
-                        const response = await fetch('/api/login', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ password: this.password })
-                        });
-                        
-                        const data = await response.json();
-                        
-                        if (response.ok && data.success) {
-                            // 登录成功，跳转到管理页面
-                            window.location.href = '/manage.html';
-                        } else {
-                            // 登录失败
-                            this.errorMessage = data.error || '登录失败，请重试';
-                            this.password = '';
-                        }
-                    } catch (error) {
-                        console.error('登录错误:', error);
-                        this.errorMessage = '网络错误，请重试';
-                        this.password = '';
-                    } finally {
-                        this.loading = false;
-                    }
-                }
-            }
-        }
-    </script>
+    <!-- 页脚 -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-400">Home Voice Box - 让智能家居更智能</p>
+            <p class="text-gray-500 text-sm mt-2">基于 Cloudflare Pages 构建</p>
+            <div class="mt-4 space-x-4">
+                <a href="https://github.com/xinFengQi/ds-voice-box" target="_blank" class="text-gray-400 hover:text-white text-sm">
+                    GitHub 仓库
+                </a>
+                <span class="text-gray-600">|</span>
+                <a href="https://ds-voice-box.pages.dev" target="_blank" class="text-gray-400 hover:text-white text-sm">
+                    在线演示
+                </a>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
 

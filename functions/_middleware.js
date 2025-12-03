@@ -10,12 +10,17 @@ import { getCache } from './utils/intent-cache.js';
 export async function onRequest(context) {
   const url = new URL(context.request.url);
   const pathname = url.pathname;
+  const loginPath = context.env.LOGIN_PATH;
   
-  // 排除登录页面（根路径）、文档页面、登录相关 API 和天猫精灵接口
+  // 检查是否是登录路径（由 functions/[path].js 处理）
+  const isLoginPath = loginPath && pathname === `/${loginPath}`;
+  
+  // 排除文档页面（首页）、登录路径、登录相关 API 和天猫精灵接口
   if (
     pathname === '/' ||
     pathname === '/index.html' ||
     pathname === '/docs.html' ||
+    isLoginPath ||
     pathname.startsWith('/api/login') ||
     pathname.startsWith('/api/logout') ||
     pathname.startsWith('/api/check-auth') ||
@@ -42,9 +47,9 @@ export async function onRequest(context) {
     }
   }
   
-  // 对于 HTML 页面，检查认证（排除根路径，因为根路径是登录页）
-  if (pathname.endsWith('.html')) {
-    const authResponse = requireAuth(context.request, { redirect: true });
+  // 对于 HTML 页面，检查认证（排除首页和登录路径）
+  if (pathname.endsWith('.html') && pathname !== '/index.html') {
+    const authResponse = requireAuth(context.request, { redirect: true, env: context.env });
     if (authResponse) {
       return authResponse;
     }

@@ -26,6 +26,14 @@ HA_URL=http://172.19.0.2:8123
 # 获取方式：Home Assistant > 设置 > 人员与区域 > 长期访问令牌 > 创建令牌
 HA_TOKEN=your_long_lived_access_token_here
 
+# --- 登录路径（必需，用于保护登录页面）---
+# 登录页面的访问路径，只有访问 /LOGIN_PATH 才能进入登录页
+# 例如：如果设置为 aaa，则只有访问 /aaa 才能进入登录页
+# 配置位置：
+#   - 本地开发：在此文件（.dev.vars）中配置
+#   - 生产环境：在 Cloudflare Dashboard > 你的项目 > Settings > Variables and Secrets 中配置
+LOGIN_PATH=aaa
+
 # --- 管理员密码（必需，用于登录系统）---
 # 登录密码，用于访问管理页面和 API 接口
 # 配置位置：
