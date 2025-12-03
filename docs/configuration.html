@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>配置指南 - Home Voice Box</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+        .code-block {
+            background-color: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+        .code-block code {
+            color: #e2e8f0;
+        }
+        .section {
+            scroll-margin-top: 2rem;
+        }
+        .docs-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr 200px;
+            gap: 2rem;
+            min-height: calc(100vh - 64px);
+        }
+        @media (max-width: 1024px) {
+            .docs-layout {
+                grid-template-columns: 200px 1fr;
+            }
+            .toc-right {
+                display: none;
+            }
+        }
+        @media (max-width: 768px) {
+            .docs-layout {
+                grid-template-columns: 1fr;
+            }
+            .toc-left, .toc-right {
+                display: none;
+            }
+        }
+        .toc-left {
+            position: sticky;
+            top: 4rem;
+            height: fit-content;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+        .toc-right {
+            position: sticky;
+            top: 4rem;
+            height: fit-content;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <a href="/" class="text-xl font-bold text-gray-800 hover:text-blue-600">Home Voice Box</a>
+                <div class="hidden md:flex space-x-4">
+                    <a href="/" class="text-gray-600 hover:text-blue-600">文档</a>
+                    <a href="https://github.com/xinFengQi/ds-voice-box" target="_blank" class="text-gray-600 hover:text-blue-600">GitHub</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 三栏布局 -->
+    <div class="docs-layout container mx-auto px-4 py-8">
+        <!-- 左侧目录 -->
+        <aside class="toc-left bg-white rounded-lg shadow p-4">
+            <h3 class="font-bold text-gray-800 mb-4">文档目录</h3>
+            <nav class="space-y-2">
+                <a href="/" class="block text-gray-700 hover:text-blue-600">首页</a>
+                <a href="/docs/home-assistant.html" class="block text-gray-700 hover:text-blue-600">Home Assistant 部署</a>
+                <a href="/docs/cloudflare-tunnel.html" class="block text-gray-700 hover:text-blue-600">Cloudflare Tunnel</a>
+                <a href="/docs/cloudflare-pages.html" class="block text-gray-700 hover:text-blue-600">Cloudflare Pages 部署</a>
+                <a href="/docs/configuration.html" class="block text-blue-600 font-medium">配置指南</a>
+                <a href="/docs/usage.html" class="block text-gray-700 hover:text-blue-600">使用指南</a>
+                <a href="/docs/api.html" class="block text-gray-700 hover:text-blue-600">API 文档</a>
+            </nav>
+        </aside>
+
+        <!-- 中间内容 -->
+        <main class="max-w-4xl">
+            <div class="bg-white rounded-lg shadow p-8">
+                <h1 class="text-4xl font-bold text-gray-800 mb-6">配置指南</h1>
+                
+                <div class="prose max-w-none">
+                    <p class="text-lg text-gray-700 mb-6">
+                        本指南详细说明如何配置 Home Voice Box 的所有环境变量和系统设置。
+                    </p>
+
+                    <section id="env-vars" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">环境变量配置</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">必需的环境变量</h3>
+                        <div class="space-y-4">
+                            <div class="border-l-4 border-blue-500 pl-4">
+                                <h4 class="font-semibold text-gray-800">ALIGENIE_NAME 和 ALIGENIE_CONTENT</h4>
+                                <p class="text-gray-700 text-sm mt-1">天猫精灵域名校验文件配置</p>
+                                <p class="text-gray-600 text-sm mt-1">获取方式：</p>
+                                <ol class="list-decimal list-inside text-sm text-gray-600 ml-4 mt-1">
+                                    <li>登录天猫精灵开放平台</li>
+                                    <li>进入技能开发 → 域名校验</li>
+                                    <li>复制显示的文件名和内容</li>
+                                </ol>
+                                <div class="code-block mt-2">
+                                    <code>ALIGENIE_NAME=your_verify_filename.txt<br>ALIGENIE_CONTENT=your_verify_content</code>
+                                </div>
+                            </div>
+
+                            <div class="border-l-4 border-blue-500 pl-4">
+                                <h4 class="font-semibold text-gray-800">HA_URL</h4>
+                                <p class="text-gray-700 text-sm mt-1">Home Assistant 服务器地址</p>
+                                <p class="text-gray-600 text-sm mt-1">示例：</p>
+                                <ul class="list-disc list-inside text-sm text-gray-600 ml-4 mt-1">
+                                    <li>有公网 IP：<code class="bg-gray-100 px-1 rounded">http://your-domain.com:8123</code></li>
+                                    <li>使用 Cloudflare Tunnel：<code class="bg-gray-100 px-1 rounded">https://ha.yourdomain.com</code></li>
+                                    <li>本地开发：<code class="bg-gray-100 px-1 rounded">http://localhost:8123</code></li>
+                                </ul>
+                                <div class="code-block mt-2">
+                                    <code>HA_URL=https://ha.yourdomain.com</code>
+                                </div>
+                            </div>
+
+                            <div class="border-l-4 border-blue-500 pl-4">
+                                <h4 class="font-semibold text-gray-800">HA_TOKEN</h4>
+                                <p class="text-gray-700 text-sm mt-1">Home Assistant 长期访问令牌</p>
+                                <p class="text-gray-600 text-sm mt-1">获取方式：</p>
+                                <ol class="list-decimal list-inside text-sm text-gray-600 ml-4 mt-1">
+                                    <li>登录 Home Assistant</li>
+                                    <li>点击左下角用户名</li>
+                                    <li>滚动到底部 → 长期访问令牌 → 创建令牌</li>
+                                    <li>复制生成的令牌（只显示一次）</li>
+                                </ol>
+                                <div class="code-block mt-2">
+                                    <code>HA_TOKEN=eyJ0eXAiOiJKV1QiLCJhbGc...</code>
+                                </div>
+                            </div>
+
+                            <div class="border-l-4 border-blue-500 pl-4">
+                                <h4 class="font-semibold text-gray-800">LOGIN_PATH</h4>
+                                <p class="text-gray-700 text-sm mt-1">登录页面的访问路径，用于保护登录页面</p>
+                                <p class="text-gray-600 text-sm mt-1">例如：如果设置为 <code class="bg-gray-100 px-1 rounded">aaa</code>，则只有访问 <code class="bg-gray-100 px-1 rounded">/aaa</code> 才能进入登录页。</p>
+                                <p class="text-gray-600 text-sm mt-1">未认证用户访问受保护页面会跳转到首页（文档页），不会暴露登录路径。</p>
+                                <div class="code-block mt-2">
+                                    <code>LOGIN_PATH=aaa</code>
+                                </div>
+                                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-3 mt-2">
+                                    <p class="text-sm text-yellow-700">
+                                        <strong>安全提示：</strong>建议使用复杂且不易猜测的路径，不要使用常见的路径如 <code class="bg-yellow-100 px-1 rounded">login</code> 或 <code class="bg-yellow-100 px-1 rounded">admin</code>。
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="border-l-4 border-blue-500 pl-4">
+                                <h4 class="font-semibold text-gray-800">ADMIN_PASSWORD</h4>
+                                <p class="text-gray-700 text-sm mt-1">管理员登录密码</p>
+                                <p class="text-gray-600 text-sm mt-1">用于访问管理页面和所有需要认证的 API 接口。</p>
+                                <div class="code-block mt-2">
+                                    <code>ADMIN_PASSWORD=your_strong_password_here</code>
+                                </div>
+                                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-3 mt-2">
+                                    <p class="text-sm text-yellow-700">
+                                        <strong>安全提示：</strong>请使用强密码，建议包含大小写字母、数字和特殊字符。
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="border-l-4 border-blue-500 pl-4">
+                                <h4 class="font-semibold text-gray-800">KV_BINDING_NAME</h4>
+                                <p class="text-gray-700 text-sm mt-1">KV Namespace 绑定名称</p>
+                                <p class="text-gray-600 text-sm mt-1">用于持久化存储意图映射数据。必须与 Cloudflare Dashboard 中配置的 KV Binding 名称完全一致。</p>
+                                <div class="code-block mt-2">
+                                    <code>KV_BINDING_NAME=INTENTS_KV</code>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="kv-config" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">KV Namespace 配置</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">步骤 1：创建 KV Namespace</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>登录 Cloudflare Dashboard</li>
+                            <li>选择 <strong>Workers & Pages</strong> → <strong>KV</strong></li>
+                            <li>点击 <strong>Create a namespace</strong></li>
+                            <li>输入名称（如：<code class="bg-gray-100 px-1 rounded">INTENTS_KV</code>）</li>
+                            <li>点击 <strong>Add</strong></li>
+                        </ol>
+                        <p class="text-gray-600 text-sm mt-2">或使用 CLI：</p>
+                        <div class="code-block mt-2">
+                            <code>wrangler kv:namespace create "INTENTS_KV"</code>
+                        </div>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">步骤 2：绑定到 Pages 项目</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>在 Pages 项目页面，进入 <strong>Settings</strong> → <strong>Functions</strong></li>
+                            <li>在 <strong>KV Namespace Bindings</strong> 部分，点击 <strong>Add binding</strong></li>
+                            <li>填写：
+                                <ul class="list-disc list-inside ml-4 mt-2">
+                                    <li><strong>Variable name：</strong>可以是任意名称（如：<code class="bg-gray-100 px-1 rounded">INTENTS_KV</code>）</li>
+                                    <li><strong>KV namespace：</strong>选择步骤 1 创建的 namespace</li>
+                                </ul>
+                            </li>
+                            <li>点击 <strong>Save</strong></li>
+                        </ol>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">步骤 3：设置 KV_BINDING_NAME</h3>
+                        <p class="text-gray-700 mb-2">在环境变量中设置 <code class="bg-gray-100 px-1 rounded">KV_BINDING_NAME</code>，值必须与步骤 2 中的 Variable name 完全一致。</p>
+                        <div class="code-block">
+                            <code>KV_BINDING_NAME=INTENTS_KV</code>
+                        </div>
+                        <div class="bg-red-50 border-l-4 border-red-500 p-3 mt-2">
+                            <p class="text-sm text-red-700">
+                                <strong>重要：</strong>如果 <code class="bg-red-100 px-1 rounded">KV_BINDING_NAME</code> 与绑定名称不一致，KV 功能将无法使用。
+                            </p>
+                        </div>
+                    </section>
+
+                    <section id="local-dev" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">本地开发配置</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">1. 创建 .dev.vars 文件</h3>
+                        <div class="code-block mb-4">
+                            <code>cp .dev.vars.example .dev.vars</code>
+                        </div>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">2. 编辑 .dev.vars 文件</h3>
+                        <p class="text-gray-700 mb-4">
+                            填入所有必需的环境变量值。注意：<code class="bg-gray-100 px-1 rounded">.dev.vars</code> 文件已在 <code class="bg-gray-100 px-1 rounded">.gitignore</code> 中，不会被提交到 Git。
+                        </p>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">3. 启动开发服务器</h3>
+                        <div class="code-block mb-4">
+                            <code># 基本启动（不使用 KV）<br>npx wrangler pages dev . --ip 0.0.0.0<br><br># 使用 KV（本地开发）<br>npx wrangler pages dev . --ip 0.0.0.0 --kv INTENTS_KV=your_kv_namespace_id</code>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4">
+                            其中 <code class="bg-gray-100 px-1 rounded">INTENTS_KV</code> 必须与 <code class="bg-gray-100 px-1 rounded">KV_BINDING_NAME</code> 环境变量的值一致，
+                            <code class="bg-gray-100 px-1 rounded">your_kv_namespace_id</code> 是你的 KV namespace ID（与生产环境使用同一个）。
+                        </p>
+                    </section>
+
+                    <section id="production" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">生产环境配置</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">在 Cloudflare Dashboard 中配置</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>进入你的 Pages 项目页面</li>
+                            <li>点击 <strong>Settings</strong> 标签</li>
+                            <li>在左侧菜单选择 <strong>Variables and Secrets</strong></li>
+                            <li>在 <strong>Environment Variables</strong> 部分，点击 <strong>Add variable</strong></li>
+                            <li>为每个环境变量添加：
+                                <ul class="list-disc list-inside ml-4 mt-2">
+                                    <li>Variable name（变量名）</li>
+                                    <li>Value（变量值）</li>
+                                    <li>Environment（应用环境：Production、Preview 或 Both）</li>
+                                </ul>
+                            </li>
+                            <li>点击 <strong>Save</strong></li>
+                        </ol>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">环境说明</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li><strong>Production：</strong>生产环境，主域名访问</li>
+                            <li><strong>Preview：</strong>预览环境，每个 Pull Request 的预览部署</li>
+                            <li><strong>Both：</strong>同时应用于生产和预览环境</li>
+                        </ul>
+                    </section>
+
+                    <section id="verify" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">验证配置</h2>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>访问登录页面：<code class="bg-gray-100 px-1 rounded">https://your-domain.pages.dev/LOGIN_PATH</code></li>
+                            <li>使用 <code class="bg-gray-100 px-1 rounded">ADMIN_PASSWORD</code> 登录</li>
+                            <li>在管理页面尝试获取设备列表，确认 <code class="bg-gray-100 px-1 rounded">HA_URL</code> 和 <code class="bg-gray-100 px-1 rounded">HA_TOKEN</code> 配置正确</li>
+                            <li>创建一条意图映射，确认 KV 配置正确</li>
+                        </ol>
+                    </section>
+                </div>
+            </div>
+        </main>
+
+        <!-- 右侧段落标题导航 -->
+        <aside class="toc-right">
+            <div class="bg-white rounded-lg shadow p-4">
+                <h3 class="font-bold text-gray-800 mb-4 text-sm">本页导航</h3>
+                <nav class="space-y-1 text-sm">
+                    <a href="#env-vars" class="block text-gray-600 hover:text-blue-600">环境变量配置</a>
+                    <a href="#kv-config" class="block text-gray-600 hover:text-blue-600">KV Namespace 配置</a>
+                    <a href="#local-dev" class="block text-gray-600 hover:text-blue-600">本地开发配置</a>
+                    <a href="#production" class="block text-gray-600 hover:text-blue-600">生产环境配置</a>
+                    <a href="#verify" class="block text-gray-600 hover:text-blue-600">验证配置</a>
+                </nav>
+            </div>
+        </aside>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-400">Home Voice Box - 让智能家居更智能</p>
+        </div>
+    </footer>
+</body>
+</html>
+

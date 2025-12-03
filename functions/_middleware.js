@@ -15,11 +15,12 @@ export async function onRequest(context) {
   // 检查是否是登录路径（由 functions/[path].js 处理）
   const isLoginPath = loginPath && pathname === `/${loginPath}`;
   
-  // 排除文档页面（首页）、登录路径、登录相关 API 和天猫精灵接口
+  // 排除文档页面（首页）、docs 目录、登录路径、登录相关 API 和天猫精灵接口
   if (
     pathname === '/' ||
     pathname === '/index.html' ||
     pathname === '/docs.html' ||
+    pathname.startsWith('/docs/') ||
     isLoginPath ||
     pathname.startsWith('/api/login') ||
     pathname.startsWith('/api/logout') ||

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloudflare Tunnel 配置指南 - Home Voice Box</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+        .code-block {
+            background-color: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+        .code-block code {
+            color: #e2e8f0;
+        }
+        .section {
+            scroll-margin-top: 2rem;
+        }
+        .docs-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr 200px;
+            gap: 2rem;
+            min-height: calc(100vh - 64px);
+        }
+        @media (max-width: 1024px) {
+            .docs-layout {
+                grid-template-columns: 200px 1fr;
+            }
+            .toc-right {
+                display: none;
+            }
+        }
+        @media (max-width: 768px) {
+            .docs-layout {
+                grid-template-columns: 1fr;
+            }
+            .toc-left, .toc-right {
+                display: none;
+            }
+        }
+        .toc-left {
+            position: sticky;
+            top: 4rem;
+            height: fit-content;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+        .toc-right {
+            position: sticky;
+            top: 4rem;
+            height: fit-content;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50" x-data="{ mobileMenuOpen: false }">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <a href="/" class="text-xl font-bold text-gray-800 hover:text-blue-600">Home Voice Box</a>
+                <div class="hidden md:flex space-x-4">
+                    <a href="/" class="text-gray-600 hover:text-blue-600">文档</a>
+                    <a href="https://github.com/xinFengQi/ds-voice-box" target="_blank" class="text-gray-600 hover:text-blue-600">GitHub</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 三栏布局 -->
+    <div class="docs-layout container mx-auto px-4 py-8">
+        <!-- 左侧目录 -->
+        <aside class="toc-left bg-white rounded-lg shadow p-4">
+            <h3 class="font-bold text-gray-800 mb-4">文档目录</h3>
+            <nav class="space-y-2">
+                <a href="/" class="block text-gray-700 hover:text-blue-600">首页</a>
+                <a href="/docs/home-assistant.html" class="block text-gray-700 hover:text-blue-600">Home Assistant 部署</a>
+                <a href="/docs/cloudflare-tunnel.html" class="block text-blue-600 font-medium">Cloudflare Tunnel</a>
+                <a href="/docs/cloudflare-pages.html" class="block text-gray-700 hover:text-blue-600">Cloudflare Pages 部署</a>
+                <a href="/docs/configuration.html" class="block text-gray-700 hover:text-blue-600">配置指南</a>
+                <a href="/docs/usage.html" class="block text-gray-700 hover:text-blue-600">使用指南</a>
+                <a href="/docs/api.html" class="block text-gray-700 hover:text-blue-600">API 文档</a>
+            </nav>
+        </aside>
+
+        <!-- 中间内容 -->
+        <main class="max-w-4xl">
+            <div class="bg-white rounded-lg shadow p-8">
+                <h1 class="text-4xl font-bold text-gray-800 mb-6">Cloudflare Tunnel 配置指南</h1>
+                
+                <div class="prose max-w-none">
+                    <p class="text-lg text-gray-700 mb-6">
+                        如果你没有公网 IP，可以使用 Cloudflare Tunnel 安全地暴露 Home Assistant，无需配置端口转发或动态 DNS。
+                    </p>
+
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 my-6">
+                        <p class="text-blue-700">
+                            <strong>优势：</strong>无需公网 IP、无需端口转发、自动 HTTPS、免费使用
+                        </p>
+                    </div>
+
+                    <section id="overview" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">什么是 Cloudflare Tunnel？</h2>
+                        <p class="text-gray-700 mb-4">
+                            Cloudflare Tunnel（原 Argo Tunnel）是一个安全的连接工具，它会在你的本地服务和 Cloudflare 边缘网络之间创建一个加密的隧道。
+                            通过这个隧道，你可以安全地暴露本地服务，而无需公网 IP 或开放防火墙端口。
+                        </p>
+                        <p class="text-gray-700 mb-4">
+                            参考文档：
+                            <a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/" target="_blank" class="text-blue-600 hover:underline">
+                                Cloudflare Tunnel 官方文档
+                            </a>
+                        </p>
+                    </section>
+
+                    <section id="prerequisites" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">前置要求</h2>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>Cloudflare 账户（免费账户即可）</li>
+                            <li>已部署的 Home Assistant（参考 <a href="/docs/home-assistant.html" class="text-blue-600 hover:underline">Home Assistant 部署指南</a>）</li>
+                            <li>能够运行 cloudflared 的设备（与 Home Assistant 在同一网络）</li>
+                        </ul>
+                    </section>
+
+                    <section id="install-cloudflared" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">安装 cloudflared</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Linux</h3>
+                        <div class="code-block mb-4">
+                            <code># Ubuntu/Debian<br>wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb<br>sudo dpkg -i cloudflared-linux-amd64.deb<br><br># 或使用包管理器<br>sudo apt-get update && sudo apt-get install cloudflared</code>
+                        </div>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">macOS</h3>
+                        <div class="code-block mb-4">
+                            <code>brew install cloudflared</code>
+                        </div>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">Windows</h3>
+                        <p class="text-gray-700 mb-2">下载安装包：</p>
+                        <div class="code-block mb-4">
+                            <code># 从 GitHub 下载最新版本<br>https://github.com/cloudflare/cloudflared/releases</code>
+                        </div>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">Docker</h3>
+                        <div class="code-block mb-4">
+                            <code>docker pull cloudflare/cloudflared:latest</code>
+                        </div>
+                    </section>
+
+                    <section id="create-tunnel" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">创建 Tunnel</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">1. 登录 Cloudflare</h3>
+                        <div class="code-block mb-4">
+                            <code>cloudflared tunnel login</code>
+                        </div>
+                        <p class="text-gray-700 mb-4">
+                            这会打开浏览器，让你登录 Cloudflare 账户并授权。授权后，证书会自动保存。
+                        </p>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">2. 创建 Tunnel</h3>
+                        <div class="code-block mb-4">
+                            <code>cloudflared tunnel create home-assistant</code>
+                        </div>
+                        <p class="text-gray-700 mb-4">
+                            这会创建一个名为 <code class="bg-gray-100 px-1 rounded">home-assistant</code> 的 Tunnel。
+                            记住返回的 Tunnel ID，后续配置需要用到。
+                        </p>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">3. 创建配置文件</h3>
+                        <p class="text-gray-700 mb-2">创建配置文件目录：</p>
+                        <div class="code-block mb-4">
+                            <code>mkdir -p ~/.cloudflared</code>
+                        </div>
+                        <p class="text-gray-700 mb-2">创建配置文件 <code class="bg-gray-100 px-1 rounded">~/.cloudflared/config.yml</code>：</p>
+                        <div class="code-block mb-4">
+                            <code>tunnel: YOUR_TUNNEL_ID<br>credentials-file: /home/username/.cloudflared/YOUR_TUNNEL_ID.json<br><br>ingress:<br>  - hostname: ha.yourdomain.com<br>    service: http://localhost:8123<br>  - service: http_status:404</code>
+                        </div>
+                        <p class="text-gray-700 mb-4">
+                            将 <code class="bg-gray-100 px-1 rounded">YOUR_TUNNEL_ID</code> 替换为实际的 Tunnel ID，
+                            将 <code class="bg-gray-100 px-1 rounded">ha.yourdomain.com</code> 替换为你的域名。
+                        </p>
+                    </section>
+
+                    <section id="configure-dns" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">配置 DNS 记录</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">方法 1：使用命令行</h3>
+                        <div class="code-block mb-4">
+                            <code>cloudflared tunnel route dns home-assistant ha.yourdomain.com</code>
+                        </div>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">方法 2：在 Cloudflare Dashboard 中配置</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>登录 Cloudflare Dashboard</li>
+                            <li>选择你的域名</li>
+                            <li>进入 <strong>DNS</strong> → <strong>Records</strong></li>
+                            <li>添加 CNAME 记录：
+                                <ul class="list-disc list-inside ml-4 mt-2">
+                                    <li>Name: <code class="bg-gray-100 px-1 rounded">ha</code></li>
+                                    <li>Target: <code class="bg-gray-100 px-1 rounded">YOUR_TUNNEL_ID.cfargotunnel.com</code></li>
+                                    <li>Proxy status: 已代理（橙色云）</li>
+                                </ul>
+                            </li>
+                        </ol>
+                    </section>
+
+                    <section id="run-tunnel" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">运行 Tunnel</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">临时运行（测试）</h3>
+                        <div class="code-block mb-4">
+                            <code>cloudflared tunnel run home-assistant</code>
+                        </div>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">作为系统服务运行（推荐）</h3>
+                        <p class="text-gray-700 mb-2">安装为系统服务：</p>
+                        <div class="code-block mb-4">
+                            <code>sudo cloudflared service install</code>
+                        </div>
+                        <p class="text-gray-700 mb-4">
+                            这会创建一个 systemd 服务，Tunnel 会在系统启动时自动运行。
+                        </p>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">Docker 方式运行</h3>
+                        <div class="code-block mb-4">
+                            <code>docker run -d \\<br>  --name cloudflared \\<br>  --restart unless-stopped \\<br>  -v ~/.cloudflared:/etc/cloudflared \\<br>  cloudflare/cloudflared:latest \\<br>  tunnel run home-assistant</code>
+                        </div>
+                    </section>
+
+                    <section id="verify" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">验证配置</h2>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>等待 DNS 记录生效（通常几分钟）</li>
+                            <li>访问 <code class="bg-gray-100 px-1 rounded">https://ha.yourdomain.com</code></li>
+                            <li>应该能看到 Home Assistant 登录页面</li>
+                            <li>使用 Home Assistant 的长期访问令牌测试 API 访问</li>
+                        </ol>
+                    </section>
+
+                    <section id="configure-ha-url" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">配置 Home Voice Box</h2>
+                        <p class="text-gray-700 mb-4">
+                            在 Home Voice Box 的环境变量中，将 <code class="bg-gray-100 px-1 rounded">HA_URL</code> 设置为：
+                        </p>
+                        <div class="code-block mb-4">
+                            <code>HA_URL=https://ha.yourdomain.com</code>
+                        </div>
+                        <p class="text-gray-700 mb-4">
+                            这样 Home Voice Box 就可以通过 Cloudflare Tunnel 访问你的 Home Assistant 了。
+                        </p>
+                    </section>
+
+                    <section id="troubleshooting" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">故障排除</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Tunnel 无法连接</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>检查 cloudflared 是否正在运行：<code class="bg-gray-100 px-1 rounded">cloudflared tunnel list</code></li>
+                            <li>检查配置文件路径和内容是否正确</li>
+                            <li>查看日志：<code class="bg-gray-100 px-1 rounded">cloudflared tunnel info home-assistant</code></li>
+                        </ul>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">DNS 解析失败</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>确认 DNS 记录已正确配置</li>
+                            <li>等待 DNS 传播（最多 24 小时，通常几分钟）</li>
+                            <li>使用 <code class="bg-gray-100 px-1 rounded">nslookup ha.yourdomain.com</code> 检查 DNS 解析</li>
+                        </ul>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">无法访问 Home Assistant</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>确认 Home Assistant 在本地可以访问（<code class="bg-gray-100 px-1 rounded">http://localhost:8123</code>）</li>
+                            <li>检查配置文件中的 service 地址是否正确</li>
+                            <li>查看 cloudflared 日志获取详细错误信息</li>
+                        </ul>
+                    </section>
+
+                    <section id="resources" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">参考资源</h2>
+                        <ul class="space-y-2 text-gray-700">
+                            <li>
+                                <a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/" target="_blank" class="text-blue-600 hover:underline">
+                                    Cloudflare Tunnel 官方文档
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation/" target="_blank" class="text-blue-600 hover:underline">
+                                    cloudflared 安装指南
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/" target="_blank" class="text-blue-600 hover:underline">
+                                    Tunnel 配置文档
+                                </a>
+                            </li>
+                        </ul>
+                    </section>
+                </div>
+            </div>
+        </main>
+
+        <!-- 右侧段落标题导航 -->
+        <aside class="toc-right">
+            <div class="bg-white rounded-lg shadow p-4">
+                <h3 class="font-bold text-gray-800 mb-4 text-sm">本页导航</h3>
+                <nav class="space-y-1 text-sm">
+                    <a href="#overview" class="block text-gray-600 hover:text-blue-600">什么是 Cloudflare Tunnel</a>
+                    <a href="#prerequisites" class="block text-gray-600 hover:text-blue-600">前置要求</a>
+                    <a href="#install-cloudflared" class="block text-gray-600 hover:text-blue-600">安装 cloudflared</a>
+                    <a href="#create-tunnel" class="block text-gray-600 hover:text-blue-600">创建 Tunnel</a>
+                    <a href="#configure-dns" class="block text-gray-600 hover:text-blue-600">配置 DNS 记录</a>
+                    <a href="#run-tunnel" class="block text-gray-600 hover:text-blue-600">运行 Tunnel</a>
+                    <a href="#verify" class="block text-gray-600 hover:text-blue-600">验证配置</a>
+                    <a href="#configure-ha-url" class="block text-gray-600 hover:text-blue-600">配置 Home Voice Box</a>
+                    <a href="#troubleshooting" class="block text-gray-600 hover:text-blue-600">故障排除</a>
+                    <a href="#resources" class="block text-gray-600 hover:text-blue-600">参考资源</a>
+                </nav>
+            </div>
+        </aside>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-400">Home Voice Box - 让智能家居更智能</p>
+        </div>
+    </footer>
+</body>
+</html>
+

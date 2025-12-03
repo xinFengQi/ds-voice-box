@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>使用指南 - Home Voice Box</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+        .code-block {
+            background-color: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+        .code-block code {
+            color: #e2e8f0;
+        }
+        .section {
+            scroll-margin-top: 2rem;
+        }
+        .docs-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr 200px;
+            gap: 2rem;
+            min-height: calc(100vh - 64px);
+        }
+        @media (max-width: 1024px) {
+            .docs-layout {
+                grid-template-columns: 200px 1fr;
+            }
+            .toc-right {
+                display: none;
+            }
+        }
+        @media (max-width: 768px) {
+            .docs-layout {
+                grid-template-columns: 1fr;
+            }
+            .toc-left, .toc-right {
+                display: none;
+            }
+        }
+        .toc-left {
+            position: sticky;
+            top: 4rem;
+            height: fit-content;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+        .toc-right {
+            position: sticky;
+            top: 4rem;
+            height: fit-content;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <a href="/" class="text-xl font-bold text-gray-800 hover:text-blue-600">Home Voice Box</a>
+                <div class="hidden md:flex space-x-4">
+                    <a href="/" class="text-gray-600 hover:text-blue-600">文档</a>
+                    <a href="https://github.com/xinFengQi/ds-voice-box" target="_blank" class="text-gray-600 hover:text-blue-600">GitHub</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 三栏布局 -->
+    <div class="docs-layout container mx-auto px-4 py-8">
+        <!-- 左侧目录 -->
+        <aside class="toc-left bg-white rounded-lg shadow p-4">
+            <h3 class="font-bold text-gray-800 mb-4">文档目录</h3>
+            <nav class="space-y-2">
+                <a href="/" class="block text-gray-700 hover:text-blue-600">首页</a>
+                <a href="/docs/home-assistant.html" class="block text-gray-700 hover:text-blue-600">Home Assistant 部署</a>
+                <a href="/docs/cloudflare-tunnel.html" class="block text-gray-700 hover:text-blue-600">Cloudflare Tunnel</a>
+                <a href="/docs/cloudflare-pages.html" class="block text-gray-700 hover:text-blue-600">Cloudflare Pages 部署</a>
+                <a href="/docs/configuration.html" class="block text-gray-700 hover:text-blue-600">配置指南</a>
+                <a href="/docs/usage.html" class="block text-blue-600 font-medium">使用指南</a>
+                <a href="/docs/api.html" class="block text-gray-700 hover:text-blue-600">API 文档</a>
+            </nav>
+        </aside>
+
+        <!-- 中间内容 -->
+        <main class="max-w-4xl">
+            <div class="bg-white rounded-lg shadow p-8">
+                <h1 class="text-4xl font-bold text-gray-800 mb-6">使用指南</h1>
+                
+                <div class="prose max-w-none">
+                    <p class="text-lg text-gray-700 mb-6">
+                        本指南将帮助你完成从登录系统到配置天猫精灵的完整流程。
+                    </p>
+
+                    <section id="login" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">1. 登录系统</h2>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>访问登录页面：<code class="bg-gray-100 px-1 rounded">https://your-domain.pages.dev/LOGIN_PATH</code></li>
+                            <li>输入配置的 <code class="bg-gray-100 px-1 rounded">ADMIN_PASSWORD</code></li>
+                            <li>点击 <strong>登录</strong></li>
+                            <li>登录成功后会自动跳转到管理页面</li>
+                        </ol>
+                        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mt-4">
+                            <p class="text-sm text-yellow-700">
+                                <strong>安全提示：</strong>只有知道 <code class="bg-yellow-100 px-1 rounded">LOGIN_PATH</code> 的人才能访问登录页。
+                                未认证用户访问受保护页面（如 <code class="bg-yellow-100 px-1 rounded">/manage.html</code>）会自动跳转到首页（文档页），不会暴露登录路径。
+                            </p>
+                        </div>
+                    </section>
+
+                    <section id="create-mapping" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">2. 创建意图映射</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">步骤详解</h3>
+                        <ol class="list-decimal list-inside space-y-3 text-gray-700 ml-4">
+                            <li>
+                                <strong>点击"添加映射"按钮</strong>
+                                <p class="text-sm text-gray-600 ml-4">在管理页面顶部，点击蓝色的"添加映射"按钮</p>
+                            </li>
+                            <li>
+                                <strong>填写意图标识</strong>
+                                <p class="text-sm text-gray-600 ml-4">输入天猫精灵的意图名称（如：<code class="bg-gray-100 px-1 rounded">TurnOnLight</code>）。这个名称必须与天猫精灵开放平台中配置的意图名称完全一致。</p>
+                            </li>
+                            <li>
+                                <strong>选择实体设备</strong>
+                                <p class="text-sm text-gray-600 ml-4">
+                                    <ul class="list-disc list-inside ml-4 mt-1">
+                                        <li>在搜索框中输入设备名称或实体 ID 进行搜索</li>
+                                        <li>从下拉列表中选择目标设备</li>
+                                        <li>系统会自动根据设备类型筛选可用的接口</li>
+                                    </ul>
+                                </p>
+                            </li>
+                            <li>
+                                <strong>选择调用接口</strong>
+                                <p class="text-sm text-gray-600 ml-4">根据设备类型，系统会显示可用的接口选项：
+                                    <ul class="list-disc list-inside ml-4 mt-1">
+                                        <li>灯光设备：打开灯光、关闭灯光、切换灯光</li>
+                                        <li>风扇设备：打开风扇、关闭风扇、切换风扇</li>
+                                    </ul>
+                                </p>
+                            </li>
+                            <li>
+                                <strong>填写回复内容（可选）</strong>
+                                <p class="text-sm text-gray-600 ml-4">输入天猫精灵执行操作后的语音回复内容（如："好的，已为您打开灯光"）。如果不填写，系统会使用接口的默认描述。</p>
+                            </li>
+                            <li>
+                                <strong>保存映射</strong>
+                                <p class="text-sm text-gray-600 ml-4">点击"保存"按钮，映射会立即保存到 KV 并更新内存缓存。</p>
+                            </li>
+                        </ol>
+                    </section>
+
+                    <section id="edit-mapping" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">3. 编辑和删除映射</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">编辑映射</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>在映射列表中，点击要编辑的映射的"编辑"按钮</li>
+                            <li>修改需要更改的字段</li>
+                            <li>点击"保存"完成更新</li>
+                        </ol>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">删除映射</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>在映射列表中，点击要删除的映射的"删除"按钮</li>
+                            <li>确认删除操作</li>
+                            <li>映射会从 KV 和内存缓存中删除</li>
+                        </ol>
+                    </section>
+
+                    <section id="aligenie-config" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">4. 配置天猫精灵技能</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">在天猫精灵开放平台配置</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>
+                                <strong>创建技能</strong>
+                                <p class="text-sm text-gray-600 ml-4">登录天猫精灵开放平台，创建新的技能项目</p>
+                            </li>
+                            <li>
+                                <strong>配置意图</strong>
+                                <p class="text-sm text-gray-600 ml-4">
+                                    <ul class="list-disc list-inside ml-4 mt-1">
+                                        <li>创建意图，意图名称必须与系统中配置的意图标识完全一致</li>
+                                        <li>配置意图的触发词（用户说出的语音指令）</li>
+                                        <li>配置意图的参数（如果需要）</li>
+                                    </ul>
+                                </p>
+                            </li>
+                            <li>
+                                <strong>配置服务地址</strong>
+                                <p class="text-sm text-gray-600 ml-4">设置服务地址为：<code class="bg-gray-100 px-1 rounded">https://ds-voice-box.pages.dev/api/tomi</code></p>
+                            </li>
+                            <li>
+                                <strong>完成域名校验</strong>
+                                <p class="text-sm text-gray-600 ml-4">
+                                    <ul class="list-disc list-inside ml-4 mt-1">
+                                        <li>在域名校验页面，复制显示的文件名和内容</li>
+                                        <li>在 Home Voice Box 的环境变量中配置 <code class="bg-gray-100 px-1 rounded">ALIGENIE_NAME</code> 和 <code class="bg-gray-100 px-1 rounded">ALIGENIE_CONTENT</code></li>
+                                        <li>系统会自动处理校验文件，访问 <code class="bg-gray-100 px-1 rounded">/aligenie/文件名</code> 即可返回校验内容</li>
+                                    </ul>
+                                </p>
+                            </li>
+                            <li>
+                                <strong>提交审核</strong>
+                                <p class="text-sm text-gray-600 ml-4">完成所有配置后，提交技能审核</p>
+                            </li>
+                        </ol>
+                        <p class="text-gray-600 text-sm mt-4">
+                            参考文档：
+                            <a href="https://aligenie.com/doc" target="_blank" class="text-blue-600 hover:underline">
+                                天猫精灵开放平台文档
+                            </a>
+                        </p>
+                    </section>
+
+                    <section id="test" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">5. 测试语音控制</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">测试流程</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>确保天猫精灵技能已通过审核并发布</li>
+                            <li>在天猫精灵设备前说出配置的语音指令（如："打开厨房灯"）</li>
+                            <li>系统会自动：
+                                <ul class="list-disc list-inside ml-4 mt-1">
+                                    <li>接收天猫精灵的请求</li>
+                                    <li>提取意图标识</li>
+                                    <li>从内存缓存中查找映射</li>
+                                    <li>调用对应的 Home Assistant API</li>
+                                    <li>返回配置的回复内容</li>
+                                </ul>
+                            </li>
+                            <li>天猫精灵会播报回复内容</li>
+                        </ol>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">调试技巧</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>在 Cloudflare Dashboard 中查看 Functions 日志，了解请求详情</li>
+                            <li>检查 Home Assistant 日志，确认 API 调用是否成功</li>
+                            <li>在管理页面查看意图映射是否正确配置</li>
+                            <li>使用 <code class="bg-gray-100 px-1 rounded">GET /api/intent-mapping?intentName=xxx</code> 测试映射查询</li>
+                        </ul>
+                    </section>
+
+                    <section id="tips" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">使用技巧</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">意图命名建议</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>使用有意义的名称，如 <code class="bg-gray-100 px-1 rounded">TurnOnKitchenLight</code> 而不是 <code class="bg-gray-100 px-1 rounded">Action1</code></li>
+                            <li>保持命名一致性，如统一使用驼峰命名法</li>
+                            <li>避免使用特殊字符和空格</li>
+                        </ul>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">回复内容建议</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>回复内容应该简洁明了，适合语音播报</li>
+                            <li>可以包含设备名称，如："好的，已为您打开厨房灯"</li>
+                            <li>避免过长的回复内容</li>
+                        </ul>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">性能优化</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>意图映射数据存储在内存中，查询速度极快</li>
+                            <li>首次请求时会自动初始化缓存</li>
+                            <li>增删改操作会自动同步更新内存缓存</li>
+                        </ul>
+                    </section>
+                </div>
+            </div>
+        </main>
+
+        <!-- 右侧段落标题导航 -->
+        <aside class="toc-right">
+            <div class="bg-white rounded-lg shadow p-4">
+                <h3 class="font-bold text-gray-800 mb-4 text-sm">本页导航</h3>
+                <nav class="space-y-1 text-sm">
+                    <a href="#login" class="block text-gray-600 hover:text-blue-600">登录系统</a>
+                    <a href="#create-mapping" class="block text-gray-600 hover:text-blue-600">创建意图映射</a>
+                    <a href="#edit-mapping" class="block text-gray-600 hover:text-blue-600">编辑和删除映射</a>
+                    <a href="#aligenie-config" class="block text-gray-600 hover:text-blue-600">配置天猫精灵技能</a>
+                    <a href="#test" class="block text-gray-600 hover:text-blue-600">测试语音控制</a>
+                    <a href="#tips" class="block text-gray-600 hover:text-blue-600">使用技巧</a>
+                </nav>
+            </div>
+        </aside>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-400">Home Voice Box - 让智能家居更智能</p>
+        </div>
+    </footer>
+</body>
+</html>
+

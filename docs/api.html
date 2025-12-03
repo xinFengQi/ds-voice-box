@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 文档 - Home Voice Box</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+        .code-block {
+            background-color: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+        .code-block code {
+            color: #e2e8f0;
+        }
+        .section {
+            scroll-margin-top: 2rem;
+        }
+        .docs-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr 200px;
+            gap: 2rem;
+            min-height: calc(100vh - 64px);
+        }
+        @media (max-width: 1024px) {
+            .docs-layout {
+                grid-template-columns: 200px 1fr;
+            }
+            .toc-right {
+                display: none;
+            }
+        }
+        @media (max-width: 768px) {
+            .docs-layout {
+                grid-template-columns: 1fr;
+            }
+            .toc-left, .toc-right {
+                display: none;
+            }
+        }
+        .toc-left {
+            position: sticky;
+            top: 4rem;
+            height: fit-content;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+        .toc-right {
+            position: sticky;
+            top: 4rem;
+            height: fit-content;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <a href="/" class="text-xl font-bold text-gray-800 hover:text-blue-600">Home Voice Box</a>
+                <div class="hidden md:flex space-x-4">
+                    <a href="/" class="text-gray-600 hover:text-blue-600">文档</a>
+                    <a href="https://github.com/xinFengQi/ds-voice-box" target="_blank" class="text-gray-600 hover:text-blue-600">GitHub</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 三栏布局 -->
+    <div class="docs-layout container mx-auto px-4 py-8">
+        <!-- 左侧目录 -->
+        <aside class="toc-left bg-white rounded-lg shadow p-4">
+            <h3 class="font-bold text-gray-800 mb-4">文档目录</h3>
+            <nav class="space-y-2">
+                <a href="/" class="block text-gray-700 hover:text-blue-600">首页</a>
+                <a href="/docs/home-assistant.html" class="block text-gray-700 hover:text-blue-600">Home Assistant 部署</a>
+                <a href="/docs/cloudflare-tunnel.html" class="block text-gray-700 hover:text-blue-600">Cloudflare Tunnel</a>
+                <a href="/docs/cloudflare-pages.html" class="block text-gray-700 hover:text-blue-600">Cloudflare Pages 部署</a>
+                <a href="/docs/configuration.html" class="block text-gray-700 hover:text-blue-600">配置指南</a>
+                <a href="/docs/usage.html" class="block text-gray-700 hover:text-blue-600">使用指南</a>
+                <a href="/docs/api.html" class="block text-blue-600 font-medium">API 文档</a>
+            </nav>
+        </aside>
+
+        <!-- 中间内容 -->
+        <main class="max-w-4xl">
+            <div class="bg-white rounded-lg shadow p-8">
+                <h1 class="text-4xl font-bold text-gray-800 mb-6">API 文档</h1>
+                
+                <div class="prose max-w-none">
+                    <p class="text-lg text-gray-700 mb-6">
+                        本文档描述了 Home Voice Box 的所有 API 接口。所有需要认证的接口都需要先登录获取认证 Cookie。
+                    </p>
+
+                    <section id="authentication" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">认证相关</h2>
+                        
+                        <div class="border rounded-lg p-4 mb-4">
+                            <h3 class="font-semibold text-gray-800 mb-2">POST /api/login</h3>
+                            <p class="text-sm text-gray-600 mb-2">用户登录，成功后设置认证 Cookie</p>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-700 mb-1">请求体：</p>
+                                <div class="code-block">
+                                    <code>{<br>  "password": "your_admin_password"<br>}</code>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-700 mb-1">响应（成功）：</p>
+                                <div class="code-block">
+                                    <code>{<br>  "success": true,<br>  "message": "登录成功"<br>}</code>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">状态码：200</p>
+                        </div>
+
+                        <div class="border rounded-lg p-4 mb-4">
+                            <h3 class="font-semibold text-gray-800 mb-2">POST /api/logout</h3>
+                            <p class="text-sm text-gray-600 mb-2">用户登出，清除认证 Cookie</p>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-700 mb-1">响应：</p>
+                                <div class="code-block">
+                                    <code>{<br>  "success": true,<br>  "message": "已退出登录"<br>}</code>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">状态码：200</p>
+                        </div>
+
+                        <div class="border rounded-lg p-4 mb-4">
+                            <h3 class="font-semibold text-gray-800 mb-2">GET /api/check-auth</h3>
+                            <p class="text-sm text-gray-600 mb-2">检查当前认证状态</p>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-700 mb-1">响应：</p>
+                                <div class="code-block">
+                                    <code>{<br>  "authenticated": true,<br>  "message": "已登录"<br>}</code>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">状态码：200（无需认证）</p>
+                        </div>
+                    </section>
+
+                    <section id="intents" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">意图映射管理</h2>
+                        
+                        <div class="border rounded-lg p-4 mb-4">
+                            <h3 class="font-semibold text-gray-800 mb-2">GET /api/intents</h3>
+                            <p class="text-sm text-gray-600 mb-2">获取所有意图映射列表</p>
+                            <p class="text-sm text-red-600 mb-2">⚠️ 需要认证</p>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-700 mb-1">响应：</p>
+                                <div class="code-block">
+                                    <code>[<br>  {<br>    "id": 1,<br>    "intentName": "TurnOnLight",<br>    "apiName": "turnOnLight",<br>    "apiLabel": "打开灯光",<br>    "entityId": "light.kitchen",<br>    "replyContent": "好的，已为您打开灯光"<br>  }<br>]</code>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">状态码：200</p>
+                        </div>
+
+                        <div class="border rounded-lg p-4 mb-4">
+                            <h3 class="font-semibold text-gray-800 mb-2">POST /api/intents</h3>
+                            <p class="text-sm text-gray-600 mb-2">创建新的意图映射</p>
+                            <p class="text-sm text-red-600 mb-2">⚠️ 需要认证</p>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-700 mb-1">请求体：</p>
+                                <div class="code-block">
+                                    <code>{<br>  "intentName": "TurnOnLight",<br>  "apiName": "turnOnLight",<br>  "apiLabel": "打开灯光",<br>  "entityId": "light.kitchen",<br>  "replyContent": "好的，已为您打开灯光"<br>}</code>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-700 mb-1">响应：</p>
+                                <div class="code-block">
+                                    <code>{<br>  "id": 1,<br>  "intentName": "TurnOnLight",<br>  "apiName": "turnOnLight",<br>  "apiLabel": "打开灯光",<br>  "entityId": "light.kitchen",<br>  "replyContent": "好的，已为您打开灯光"<br>}</code>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">状态码：201</p>
+                        </div>
+
+                        <div class="border rounded-lg p-4 mb-4">
+                            <h3 class="font-semibold text-gray-800 mb-2">PUT /api/intents/:id</h3>
+                            <p class="text-sm text-gray-600 mb-2">更新指定的意图映射</p>
+                            <p class="text-sm text-red-600 mb-2">⚠️ 需要认证</p>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-700 mb-1">请求体：</p>
+                                <div class="code-block">
+                                    <code>{<br>  "intentName": "TurnOnLight",<br>  "apiName": "turnOnLight",<br>  "apiLabel": "打开灯光",<br>  "entityId": "light.kitchen",<br>  "replyContent": "好的，已为您打开灯光"<br>}</code>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">状态码：200</p>
+                        </div>
+
+                        <div class="border rounded-lg p-4 mb-4">
+                            <h3 class="font-semibold text-gray-800 mb-2">DELETE /api/intents/:id</h3>
+                            <p class="text-sm text-gray-600 mb-2">删除指定的意图映射</p>
+                            <p class="text-sm text-red-600 mb-2">⚠️ 需要认证</p>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-700 mb-1">响应：</p>
+                                <div class="code-block">
+                                    <code>{<br>  "success": true<br>}</code>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">状态码：200</p>
+                        </div>
+
+                        <div class="border rounded-lg p-4 mb-4">
+                            <h3 class="font-semibold text-gray-800 mb-2">GET /api/intent-mapping?intentName=xxx</h3>
+                            <p class="text-sm text-gray-600 mb-2">快速查询意图映射（从内存缓存读取）</p>
+                            <p class="text-sm text-green-600 mb-2">✓ 无需认证</p>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-700 mb-1">查询参数：</p>
+                                <ul class="list-disc list-inside text-sm text-gray-700 ml-4">
+                                    <li><code class="bg-gray-100 px-1 rounded">intentName</code>：意图标识（必需）</li>
+                                </ul>
+                            </div>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-700 mb-1">响应（成功）：</p>
+                                <div class="code-block">
+                                    <code>{<br>  "id": 1,<br>  "intentName": "TurnOnLight",<br>  "apiName": "turnOnLight",<br>  "apiLabel": "打开灯光",<br>  "entityId": "light.kitchen",<br>  "replyContent": "好的，已为您打开灯光"<br>}</code>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">状态码：200（成功）或 404（未找到）</p>
+                        </div>
+                    </section>
+
+                    <section id="devices" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">设备管理</h2>
+                        
+                        <div class="border rounded-lg p-4 mb-4">
+                            <h3 class="font-semibold text-gray-800 mb-2">GET /api/ha-entities</h3>
+                            <p class="text-sm text-gray-600 mb-2">获取所有 Home Assistant 设备列表</p>
+                            <p class="text-sm text-red-600 mb-2">⚠️ 需要认证</p>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-700 mb-1">响应：</p>
+                                <div class="code-block">
+                                    <code>{<br>  "entities": [<br>    {<br>      "entity_id": "light.kitchen",<br>      "friendly_name": "厨房灯",<br>      "state": "on",<br>      "domain": "light"<br>    }<br>  ]<br>}</code>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">状态码：200</p>
+                        </div>
+
+                        <div class="border rounded-lg p-4 mb-4">
+                            <h3 class="font-semibold text-gray-800 mb-2">GET /api/ha-entities?domain=light</h3>
+                            <p class="text-sm text-gray-600 mb-2">获取指定类型的设备列表</p>
+                            <p class="text-sm text-red-600 mb-2">⚠️ 需要认证</p>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-700 mb-1">查询参数：</p>
+                                <ul class="list-disc list-inside text-sm text-gray-700 ml-4">
+                                    <li><code class="bg-gray-100 px-1 rounded">domain</code>：设备类型（可选，如：light、fan）</li>
+                                </ul>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">状态码：200</p>
+                        </div>
+                    </section>
+
+                    <section id="tomi" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">天猫精灵接口</h2>
+                        
+                        <div class="border rounded-lg p-4 mb-4">
+                            <h3 class="font-semibold text-gray-800 mb-2">POST /api/tomi</h3>
+                            <p class="text-sm text-gray-600 mb-2">接收天猫精灵的语音指令</p>
+                            <p class="text-sm text-green-600 mb-2">✓ 无需认证</p>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-700 mb-1">请求体（示例）：</p>
+                                <div class="code-block">
+                                    <code>{<br>  "payload": {<br>    "intent": {<br>      "name": "TurnOnLight"<br>    }<br>  }<br>}</code>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-700 mb-1">响应：</p>
+                                <div class="code-block">
+                                    <code>{<br>  "returnCode": "0",<br>  "returnValue": {<br>    "resultType": "RESULT",<br>    "executeCode": "SUCCESS",<br>    "gwCommands": [{<br>      "commandDomain": "AliGenie.Speaker",<br>      "commandName": "Speak",<br>      "payload": {<br>        "type": "text",<br>        "text": "好的，已为您打开灯光"<br>      }<br>    }]<br>  }<br>}</code>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">状态码：200</p>
+                            <p class="text-sm text-gray-600 mt-2">
+                                系统会自动：提取意图标识 → 查找映射 → 调用 Home Assistant API → 返回回复内容
+                            </p>
+                        </div>
+
+                        <div class="border rounded-lg p-4 mb-4">
+                            <h3 class="font-semibold text-gray-800 mb-2">GET /aligenie/:filename</h3>
+                            <p class="text-sm text-gray-600 mb-2">天猫精灵域名校验文件</p>
+                            <p class="text-sm text-green-600 mb-2">✓ 无需认证</p>
+                            <p class="text-sm text-gray-600 mt-2">
+                                用于天猫精灵开放平台的域名校验。文件名和内容通过环境变量 <code class="bg-gray-100 px-1 rounded">ALIGENIE_NAME</code> 和 <code class="bg-gray-100 px-1 rounded">ALIGENIE_CONTENT</code> 配置。
+                            </p>
+                        </div>
+                    </section>
+
+                    <section id="error-codes" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">错误码</h2>
+                        <div class="border rounded-lg p-4">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="border-b">
+                                        <th class="text-left py-2 px-4">状态码</th>
+                                        <th class="text-left py-2 px-4">错误码</th>
+                                        <th class="text-left py-2 px-4">说明</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-gray-700">
+                                    <tr class="border-b">
+                                        <td class="py-2 px-4">400</td>
+                                        <td class="py-2 px-4">MISSING_PASSWORD</td>
+                                        <td class="py-2 px-4">密码不能为空</td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="py-2 px-4">401</td>
+                                        <td class="py-2 px-4">INVALID_PASSWORD</td>
+                                        <td class="py-2 px-4">密码错误</td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="py-2 px-4">401</td>
+                                        <td class="py-2 px-4">UNAUTHORIZED</td>
+                                        <td class="py-2 px-4">未授权访问，请先登录</td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="py-2 px-4">404</td>
+                                        <td class="py-2 px-4">-</td>
+                                        <td class="py-2 px-4">资源不存在</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 px-4">500</td>
+                                        <td class="py-2 px-4">SERVER_ERROR</td>
+                                        <td class="py-2 px-4">服务器内部错误</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+
+        <!-- 右侧段落标题导航 -->
+        <aside class="toc-right">
+            <div class="bg-white rounded-lg shadow p-4">
+                <h3 class="font-bold text-gray-800 mb-4 text-sm">本页导航</h3>
+                <nav class="space-y-1 text-sm">
+                    <a href="#authentication" class="block text-gray-600 hover:text-blue-600">认证相关</a>
+                    <a href="#intents" class="block text-gray-600 hover:text-blue-600">意图映射管理</a>
+                    <a href="#devices" class="block text-gray-600 hover:text-blue-600">设备管理</a>
+                    <a href="#tomi" class="block text-gray-600 hover:text-blue-600">天猫精灵接口</a>
+                    <a href="#error-codes" class="block text-gray-600 hover:text-blue-600">错误码</a>
+                </nav>
+            </div>
+        </aside>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-400">Home Voice Box - 让智能家居更智能</p>
+        </div>
+    </footer>
+</body>
+</html>
+

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Assistant 部署指南 - Home Voice Box</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+        .code-block {
+            background-color: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+        .code-block code {
+            color: #e2e8f0;
+        }
+        .section {
+            scroll-margin-top: 2rem;
+        }
+        .docs-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr 200px;
+            gap: 2rem;
+            min-height: calc(100vh - 64px);
+        }
+        @media (max-width: 1024px) {
+            .docs-layout {
+                grid-template-columns: 200px 1fr;
+            }
+            .toc-right {
+                display: none;
+            }
+        }
+        @media (max-width: 768px) {
+            .docs-layout {
+                grid-template-columns: 1fr;
+            }
+            .toc-left, .toc-right {
+                display: none;
+            }
+        }
+        .toc-left {
+            position: sticky;
+            top: 4rem;
+            height: fit-content;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+        .toc-right {
+            position: sticky;
+            top: 4rem;
+            height: fit-content;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50" x-data="{ mobileMenuOpen: false }">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <a href="/" class="text-xl font-bold text-gray-800 hover:text-blue-600">Home Voice Box</a>
+                <div class="hidden md:flex space-x-4">
+                    <a href="/" class="text-gray-600 hover:text-blue-600">文档</a>
+                    <a href="https://github.com/xinFengQi/ds-voice-box" target="_blank" class="text-gray-600 hover:text-blue-600">GitHub</a>
+                </div>
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 三栏布局 -->
+    <div class="docs-layout container mx-auto px-4 py-8">
+        <!-- 左侧目录 -->
+        <aside class="toc-left bg-white rounded-lg shadow p-4">
+            <h3 class="font-bold text-gray-800 mb-4">文档目录</h3>
+            <nav class="space-y-2">
+                <a href="/" class="block text-gray-700 hover:text-blue-600">首页</a>
+                <a href="/docs/home-assistant.html" class="block text-blue-600 font-medium">Home Assistant 部署</a>
+                <a href="/docs/cloudflare-tunnel.html" class="block text-gray-700 hover:text-blue-600">Cloudflare Tunnel</a>
+                <a href="/docs/cloudflare-pages.html" class="block text-gray-700 hover:text-blue-600">Cloudflare Pages 部署</a>
+                <a href="/docs/configuration.html" class="block text-gray-700 hover:text-blue-600">配置指南</a>
+                <a href="/docs/usage.html" class="block text-gray-700 hover:text-blue-600">使用指南</a>
+                <a href="/docs/api.html" class="block text-gray-700 hover:text-blue-600">API 文档</a>
+            </nav>
+        </aside>
+
+        <!-- 中间内容 -->
+        <main class="max-w-4xl">
+            <div class="bg-white rounded-lg shadow p-8">
+                <h1 class="text-4xl font-bold text-gray-800 mb-6">Home Assistant 部署指南</h1>
+                
+                <div class="prose max-w-none">
+                    <p class="text-lg text-gray-700 mb-6">
+                        Home Assistant 是一个开源的智能家居自动化平台。本指南将帮助你快速部署和配置 Home Assistant。
+                    </p>
+
+                    <section id="overview" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">概述</h2>
+                        <p class="text-gray-700 mb-4">
+                            Home Assistant 支持多种部署方式，包括：
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li><strong>Docker</strong>：推荐方式，易于管理和更新</li>
+                            <li><strong>Home Assistant OS</strong>：专用操作系统，适合树莓派等设备</li>
+                            <li><strong>Python 虚拟环境</strong>：适合开发和测试</li>
+                            <li><strong>Supervised</strong>：在现有 Linux 系统上安装</li>
+                        </ul>
+                    </section>
+
+                    <section id="docker" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">Docker 部署（推荐）</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">1. 安装 Docker</h3>
+                        <p class="text-gray-700 mb-2">确保你的系统已安装 Docker 和 Docker Compose。</p>
+                        <div class="code-block mb-4">
+                            <code># 检查 Docker 版本<br>docker --version<br>docker-compose --version</code>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4">
+                            如果未安装，请参考：
+                            <a href="https://docs.docker.com/get-docker/" target="_blank" class="text-blue-600 hover:underline">Docker 官方安装文档</a>
+                        </p>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">2. 创建配置目录</h3>
+                        <div class="code-block mb-4">
+                            <code>mkdir -p ~/homeassistant<br>cd ~/homeassistant</code>
+                        </div>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">3. 创建 docker-compose.yml</h3>
+                        <div class="code-block mb-4">
+                            <code>version: '3'<br>services:<br>  homeassistant:<br>    container_name: homeassistant<br>    image: "ghcr.io/home-assistant/home-assistant:stable"<br>    volumes:<br>      - ./config:/config<br>      - /etc/localtime:/etc/localtime:ro<br>    restart: unless-stopped<br>    privileged: true<br>    network_mode: host</code>
+                        </div>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">4. 启动 Home Assistant</h3>
+                        <div class="code-block mb-4">
+                            <code>docker-compose up -d</code>
+                        </div>
+                        <p class="text-gray-700 mb-4">
+                            首次启动需要几分钟时间。启动后，访问 <code class="bg-gray-100 px-1 rounded">http://localhost:8123</code> 完成初始设置。
+                        </p>
+                    </section>
+
+                    <section id="initial-setup" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">初始配置</h2>
+                        
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">1. 创建管理员账户</h3>
+                        <p class="text-gray-700 mb-4">
+                            首次访问时，系统会引导你创建管理员账户。按照提示完成设置。
+                        </p>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">2. 配置位置和时区</h3>
+                        <p class="text-gray-700 mb-4">
+                            设置你的地理位置和时区，这有助于自动发现设备和正确显示时间。
+                        </p>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">3. 发现和添加设备</h3>
+                        <p class="text-gray-700 mb-4">
+                            Home Assistant 会自动发现局域网内的智能设备。你也可以手动添加集成。
+                        </p>
+                    </section>
+
+                    <section id="long-lived-token" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">创建长期访问令牌</h2>
+                        <p class="text-gray-700 mb-4">
+                            为了安全地访问 Home Assistant API，需要创建一个长期访问令牌。
+                        </p>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>登录 Home Assistant 管理界面</li>
+                            <li>点击左下角你的用户名</li>
+                            <li>滚动到底部，找到 <strong>"长期访问令牌"</strong> 部分</li>
+                            <li>点击 <strong>"创建令牌"</strong></li>
+                            <li>输入令牌名称（如：Home Voice Box）</li>
+                            <li>点击 <strong>"确定"</strong>，复制生成的令牌</li>
+                            <li><strong>重要：</strong>令牌只显示一次，请妥善保存</li>
+                        </ol>
+                        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mt-4">
+                            <p class="text-sm text-yellow-700">
+                                <strong>安全提示：</strong>长期访问令牌具有完全访问权限，请妥善保管，不要泄露给他人。
+                            </p>
+                        </div>
+                    </section>
+
+                    <section id="external-access" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">外部访问配置</h2>
+                        <p class="text-gray-700 mb-4">
+                            如果你有公网 IP，可以配置端口转发。如果没有公网 IP，请参考
+                            <a href="/docs/cloudflare-tunnel.html" class="text-blue-600 hover:underline">Cloudflare Tunnel 配置指南</a>。
+                        </p>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">有公网 IP 的情况</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>在路由器中配置端口转发（8123 端口）</li>
+                            <li>配置动态 DNS（可选，但推荐）</li>
+                            <li>在 Home Assistant 中启用外部访问</li>
+                        </ol>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">无公网 IP 的情况</h3>
+                        <p class="text-gray-700 mb-4">
+                            使用 Cloudflare Tunnel 可以安全地暴露 Home Assistant，无需公网 IP 和端口转发。
+                            详细步骤请查看 <a href="/docs/cloudflare-tunnel.html" class="text-blue-600 hover:underline">Cloudflare Tunnel 配置指南</a>。
+                        </p>
+                    </section>
+
+                    <section id="resources" class="section mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">参考资源</h2>
+                        <ul class="space-y-2 text-gray-700">
+                            <li>
+                                <a href="https://www.home-assistant.io/installation/" target="_blank" class="text-blue-600 hover:underline">
+                                    Home Assistant 官方安装文档
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.home-assistant.io/docs/authentication/" target="_blank" class="text-blue-600 hover:underline">
+                                    Home Assistant 认证文档
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.home-assistant.io/integrations/" target="_blank" class="text-blue-600 hover:underline">
+                                    Home Assistant 集成列表
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.home-assistant.io/docs/configuration/" target="_blank" class="text-blue-600 hover:underline">
+                                    Home Assistant 配置文档
+                                </a>
+                            </li>
+                        </ul>
+                    </section>
+                </div>
+            </div>
+        </main>
+
+        <!-- 右侧段落标题导航 -->
+        <aside class="toc-right">
+            <div class="bg-white rounded-lg shadow p-4">
+                <h3 class="font-bold text-gray-800 mb-4 text-sm">本页导航</h3>
+                <nav class="space-y-1 text-sm">
+                    <a href="#overview" class="block text-gray-600 hover:text-blue-600">概述</a>
+                    <a href="#docker" class="block text-gray-600 hover:text-blue-600">Docker 部署</a>
+                    <a href="#initial-setup" class="block text-gray-600 hover:text-blue-600">初始配置</a>
+                    <a href="#long-lived-token" class="block text-gray-600 hover:text-blue-600">创建长期访问令牌</a>
+                    <a href="#external-access" class="block text-gray-600 hover:text-blue-600">外部访问配置</a>
+                    <a href="#resources" class="block text-gray-600 hover:text-blue-600">参考资源</a>
+                </nav>
+            </div>
+        </aside>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-400">Home Voice Box - 让智能家居更智能</p>
+            <p class="text-gray-500 text-sm mt-2">基于 Cloudflare Pages 构建</p>
+        </div>
+    </footer>
+</body>
+</html>
+
