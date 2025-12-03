@@ -13,7 +13,7 @@
             <!-- 标题 -->
             <div class="mb-6">
                 <h1 class="text-3xl font-bold text-gray-800 mb-2">天猫精灵意图映射管理</h1>
-                <p class="text-gray-600">管理天猫精灵意图与米家设备操作的映射关系</p>
+                <p class="text-gray-600">管理天猫精灵意图与Home Assistant 设备操作的映射关系</p>
             </div>
 
             <!-- 添加按钮和登出 -->
@@ -163,16 +163,26 @@
                                     x-model="formData.apiName"
                                     required
                                     @change="onApiChange()"
-                                    :disabled="!formData.entityId || filteredApis.length === 0"
+                                    :disabled="!formData.entityId || (formData.entityId && filteredApis.length === 0)"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100">
-                                    <option value="">请选择接口</option>
+                                    <!-- 有可用接口时显示 -->
+                                    <template x-if="formData.entityId && filteredApis.length > 0">
+                                        <option value="">请选择接口</option>
+                                    </template>
                                     <template x-for="api in filteredApis" :key="api.value">
                                         <option :value="api.value" x-text="api.label"></option>
                                     </template>
-                                    <option value="" x-show="filteredApis.length === 0">该设备类型暂无可用接口</option>
+                                    <!-- 已选择设备但没有可用接口 -->
+                                    <template x-if="formData.entityId && filteredApis.length === 0">
+                                        <option value="" disabled>该设备类型暂无可用接口</option>
+                                    </template>
+                                    <!-- 未选择设备 -->
+                                    <template x-if="!formData.entityId">
+                                        <option value="" disabled>请先选择实体设备</option>
+                                    </template>
                                 </select>
                                 <p x-show="formData.entityId && filteredApis.length === 0" class="text-xs text-yellow-600 mt-1">
-                                    提示：当前设备类型（<span x-text="getEntityDomain(formData.entityId)"></span>）暂无可用接口，目前仅支持 light 和 fan 类型设备
+                                    提示：当前设备类型（<span x-text="getEntityDomain(formData.entityId)"></span>）暂无可用接口，目前仅支持 light、fan 和 switch 类型设备
                                 </p>
                             </div>
 
@@ -246,6 +256,11 @@
                         { value: 'turnOnFan', label: '打开风扇' },
                         { value: 'turnOffFan', label: '关闭风扇' },
                         { value: 'toggleFan', label: '切换风扇' }
+                    ],
+                    switch: [
+                        { value: 'turnOnSwitch', label: '打开开关' },
+                        { value: 'turnOffSwitch', label: '关闭开关' },
+                        { value: 'toggleSwitch', label: '切换开关' }
                     ]
                 },
                 availableEntities: [],
@@ -303,6 +318,10 @@
                     this.formData.entityId = entity.entity_id;
                     this.entitySearch = '';
                     this.showEntityDropdown = false;
+                    // 清空之前选择的接口，确保下拉框能正确更新
+                    this.formData.apiName = '';
+                    this.formData.apiLabel = '';
+                    // 触发接口列表更新
                     this.onEntityChange();
                 },
 

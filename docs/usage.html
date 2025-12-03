@@ -147,6 +147,7 @@
                                     <ul class="list-disc list-inside ml-4 mt-1">
                                         <li>灯光设备：打开灯光、关闭灯光、切换灯光</li>
                                         <li>风扇设备：打开风扇、关闭风扇、切换风扇</li>
+                                        <li>开关设备：打开开关、关闭开关、切换开关</li>
                                     </ul>
                                 </p>
                             </li>
@@ -274,7 +275,7 @@
                         
                         <h3 class="text-xl font-semibold text-gray-800 mb-3">意图命名建议</h3>
                         <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
-                            <li>使用有意义的名称，如 <code class="bg-gray-100 px-1 rounded">TurnOnKitchenLight</code> 而不是 <code class="bg-gray-100 px-1 rounded">Action1</code></li>
+                            <li>使用有意义的名称，如 <code class="bg-gray-100 px-1 rounded">TurnOnKitchenLight</code>、<code class="bg-gray-100 px-1 rounded">TurnOnKitchenSwitch</code> 而不是 <code class="bg-gray-100 px-1 rounded">Action1</code></li>
                             <li>保持命名一致性，如统一使用驼峰命名法</li>
                             <li>避免使用特殊字符和空格</li>
                         </ul>
@@ -282,9 +283,36 @@
                         <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">回复内容建议</h3>
                         <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
                             <li>回复内容应该简洁明了，适合语音播报</li>
-                            <li>可以包含设备名称，如："好的，已为您打开厨房灯"</li>
+                            <li>可以包含设备名称，如："好的，已为您打开厨房灯"、"好的，已为您打开厨房开关"</li>
                             <li>避免过长的回复内容</li>
                         </ul>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">设备类型示例</h3>
+                        <div class="bg-gray-50 rounded-lg p-4 mt-2">
+                            <p class="text-sm text-gray-700 mb-2"><strong>灯光设备示例：</strong></p>
+                            <ul class="list-disc list-inside text-sm text-gray-700 ml-4 mb-3">
+                                <li>意图标识：<code class="bg-gray-100 px-1 rounded">TurnOnKitchenLight</code></li>
+                                <li>实体ID：<code class="bg-gray-100 px-1 rounded">light.kitchen</code></li>
+                                <li>调用接口：<code class="bg-gray-100 px-1 rounded">turnOnLight</code></li>
+                                <li>回复内容：<code class="bg-gray-100 px-1 rounded">好的，已为您打开厨房灯</code></li>
+                            </ul>
+                            
+                            <p class="text-sm text-gray-700 mb-2 mt-3"><strong>风扇设备示例：</strong></p>
+                            <ul class="list-disc list-inside text-sm text-gray-700 ml-4 mb-3">
+                                <li>意图标识：<code class="bg-gray-100 px-1 rounded">TurnOnFan</code></li>
+                                <li>实体ID：<code class="bg-gray-100 px-1 rounded">fan.xiaomi_fan</code></li>
+                                <li>调用接口：<code class="bg-gray-100 px-1 rounded">turnOnFan</code></li>
+                                <li>回复内容：<code class="bg-gray-100 px-1 rounded">好的，已为您打开风扇</code></li>
+                            </ul>
+                            
+                            <p class="text-sm text-gray-700 mb-2 mt-3"><strong>开关设备示例：</strong></p>
+                            <ul class="list-disc list-inside text-sm text-gray-700 ml-4">
+                                <li>意图标识：<code class="bg-gray-100 px-1 rounded">TurnOnKitchenSwitch</code></li>
+                                <li>实体ID：<code class="bg-gray-100 px-1 rounded">switch.kitchen</code></li>
+                                <li>调用接口：<code class="bg-gray-100 px-1 rounded">turnOnSwitch</code></li>
+                                <li>回复内容：<code class="bg-gray-100 px-1 rounded">好的，已为您打开厨房开关</code></li>
+                            </ul>
+                        </div>
 
                         <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">性能优化</h3>
                         <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">

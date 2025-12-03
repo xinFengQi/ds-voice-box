@@ -5,6 +5,7 @@
 import { getIntentMapping } from '../utils/intent-cache.js';
 import { turnOnLight, turnOffLight, toggleLight } from '../utils/ha-light-api.js';
 import { turnOnFan, turnOffFan, toggleFan } from '../utils/ha-fan-api.js';
+import { turnOnSwitch, turnOffSwitch, toggleSwitch } from '../utils/ha-switch-api.js';
 
 // API 名称到执行函数的映射
 const apiHandlerMap = new Map([
@@ -13,7 +14,10 @@ const apiHandlerMap = new Map([
   ['toggleLight', toggleLight],
   ['turnOnFan', turnOnFan],
   ['turnOffFan', turnOffFan],
-  ['toggleFan', toggleFan]
+  ['toggleFan', toggleFan],
+  ['turnOnSwitch', turnOnSwitch],
+  ['turnOffSwitch', turnOffSwitch],
+  ['toggleSwitch', toggleSwitch]
 ]);
 
 /**

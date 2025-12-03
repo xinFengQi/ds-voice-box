@@ -1,0 +1,465 @@
+---
+description: 添加新的 Home Assistant 设备类型对接指南
+globs:
+  - "functions/utils/ha-*-api.js"
+  - "functions/api/tomi.js"
+alwaysApply: false
+---
+
+# 添加新设备类型对接指南
+
+当需要添加新的 Home Assistant 设备类型（如 switch、cover、climate 等）时，请按照以下步骤操作：
+
+## 1. 创建设备 API 文件
+
+在 `functions/utils/` 目录下创建新的设备 API 文件，命名格式：`ha-{device-type}-api.js`
+
+**命名示例：**
+- `ha-switch-api.js` - 开关设备
+- `ha-cover-api.js` - 窗帘/卷帘设备
+- `ha-climate-api.js` - 空调/温控器设备
+
+### 文件结构模板
+
+**重要：** 必须从 `ha-common.js` 导入 `callHAService` 方法，不要重复定义公共方法。
+
+```javascript
+/**
+ * Home Assistant {设备类型} 控制 API
+ * 用于控制{设备类型}设备
+ */
+
+import { callHAService } from './ha-common.js';
+
+/**
+ * 打开{设备类型}
+ * @param {Object} env - Cloudflare Workers 环境变量
+ * @param {string} entityId - 设备实体ID（如 '{domain}.kitchen'）
+ * @param {Object} options - 可选参数（根据设备类型调整）
+ * @returns {Promise<Object>} API 响应
+ */
+export async function turnOn{DeviceType}(env, entityId, options = {}) {
+  const data = { entity_id: entityId };
+  
+  // 根据设备类型添加特定参数
+  // if (options.someParam) {
+  //   data.some_param = options.someParam;
+  // }
+
+  return await callHAService(env, '{domain}', 'turn_on', data);
+}
+
+/**
+ * 关闭{设备类型}
+ * @param {Object} env - Cloudflare Workers 环境变量
+ * @param {string} entityId - 设备实体ID
+ * @returns {Promise<Object>} API 响应
+ */
+export async function turnOff{DeviceType}(env, entityId) {
+  return await callHAService(env, '{domain}', 'turn_off', {
+    entity_id: entityId
+  });
+}
+
+/**
+ * 切换{设备类型}开关状态
+ * @param {Object} env - Cloudflare Workers 环境变量
+ * @param {string} entityId - 设备实体ID
+ * @returns {Promise<Object>} API 响应
+ */
+export async function toggle{DeviceType}(env, entityId) {
+  return await callHAService(env, '{domain}', 'toggle', {
+    entity_id: entityId
+  });
+}
+```
+
+**占位符说明：**
+- `{设备类型}` - 设备的中文名称（如：开关、窗帘、空调）
+- `{DeviceType}` - 设备类型的英文名称，首字母大写（如：Switch、Cover、Climate）
+- `{domain}` - Home Assistant 的设备域（如：switch、cover、climate）
+
+**实际示例（开关设备）：**
+
+```javascript
+/**
+ * Home Assistant 开关控制 API
+ * 用于控制开关设备
+ */
+
+import { callHAService } from './ha-common.js';
+
+export async function turnOnSwitch(env, entityId) {
+  return await callHAService(env, 'switch', 'turn_on', {
+    entity_id: entityId
+  });
+}
+
+export async function turnOffSwitch(env, entityId) {
+  return await callHAService(env, 'switch', 'turn_off', {
+    entity_id: entityId
+  });
+}
+
+export async function toggleSwitch(env, entityId) {
+  return await callHAService(env, 'switch', 'toggle', {
+    entity_id: entityId
+  });
+}
+```
+
+### 注意事项
+
+#### 必须遵循的规则
+
+1. **必须从公共文件导入**：
+   - 使用 `import { callHAService } from './ha-common.js';` 导入公共方法
+   - **不要**重复定义 `getHAConfig` 和 `callHAService` 方法
+   - 如果需要 `getHAConfig`（如状态查询），使用 `import { getHAConfig } from './ha-common.js';`
+
+2. **必须导出的函数**：
+   - 至少导出三个函数：`turnOn{DeviceType}`, `turnOff{DeviceType}`, `toggle{DeviceType}`
+   - 函数命名使用驼峰命名法，首字母大写（如 `turnOnSwitch`, `turnOffSwitch`, `toggleSwitch`）
+
+3. **函数签名**：
+   - 所有基础函数必须接受 `(env, entityId, options = {})` 参数
+   - `env` - Cloudflare Workers 环境变量对象
+   - `entityId` - Home Assistant 实体ID（如 `switch.kitchen`）
+   - `options` - 可选参数对象（根据设备类型支持的功能调整）
+
+4. **扩展功能**：
+   - 如果设备类型支持其他操作（如设置亮度、颜色、温度等），可以添加额外的导出函数
+   - 参考 `@ha-light-api.js` 中的 `setLightBrightness` 和 `setLightColor` 函数
+   - 参考 `@ha-fan-api.js` 中的 `setFanPercentage` 和 `setFanPresetMode` 函数
+
+#### 参考实现
+
+- 基础设备：`@ha-switch-api.js` - 最简单的实现，只有三个基础函数
+- 带参数设备：`@ha-light-api.js` - 包含亮度、颜色等扩展功能
+- 复杂设备：`@ha-fan-api.js` - 包含风速、预设模式、摆风等复杂功能
+
+#### 公共方法说明
+
+公共方法定义在 `@ha-common.js` 中：
+
+- `getHAConfig(env)` - 获取 Home Assistant API 配置（URL 和 headers）
+- `callHAService(env, domain, service, data)` - 调用 Home Assistant 服务
+  - `domain` - 设备域（如 'light', 'fan', 'switch'）
+  - `service` - 服务名称（如 'turn_on', 'turn_off', 'toggle'）
+  - `data` - 请求数据对象（必须包含 `entity_id`）
+
+## 2. 在 tomi.js 中注册新设备
+
+在 `functions/api/tomi.js` 文件中：
+
+### 2.1 导入新设备的 API 函数
+
+在文件顶部添加导入语句（在现有导入之后）：
+
+```javascript
+import { turnOn{DeviceType}, turnOff{DeviceType}, toggle{DeviceType} } from '../utils/ha-{device-type}-api.js';
+```
+
+**实际示例（开关设备）：**
+
+```javascript
+import { turnOnSwitch, turnOffSwitch, toggleSwitch } from '../utils/ha-switch-api.js';
+```
+
+**注意：** 如果设备有额外的导出函数（如 `setLightBrightness`），也需要一并导入。
+
+### 2.2 添加到 apiHandlerMap
+
+在 `apiHandlerMap` 中添加新的映射（在现有映射之后）：
+
+```javascript
+const apiHandlerMap = new Map([
+  // ... 现有映射
+  ['turnOn{DeviceType}', turnOn{DeviceType}],
+  ['turnOff{DeviceType}', turnOff{DeviceType}],
+  ['toggle{DeviceType}', toggle{DeviceType}]
+]);
+```
+
+**实际示例（开关设备）：**
+
+```javascript
+const apiHandlerMap = new Map([
+  ['turnOnLight', turnOnLight],
+  ['turnOffLight', turnOffLight],
+  ['toggleLight', toggleLight],
+  ['turnOnFan', turnOnFan],
+  ['turnOffFan', turnOffFan],
+  ['toggleFan', toggleFan],
+  ['turnOnSwitch', turnOnSwitch],    // 新增
+  ['turnOffSwitch', turnOffSwitch],  // 新增
+  ['toggleSwitch', toggleSwitch]      // 新增
+]);
+```
+
+### 注意事项
+
+- **API 名称格式**：使用驼峰命名法（如 `turnOnSwitch`, `turnOffSwitch`, `toggleSwitch`）
+- **一致性要求**：确保 API 名称与意图映射中配置的 `apiName` 字段完全一致
+- **Map 键值**：Map 的键（字符串）必须与函数名完全匹配
+- **顺序无关**：在 Map 中的顺序不影响功能，但建议按设备类型分组
+
+## 3. 更新状态查询 API（可选）
+
+如果需要在管理界面中显示新设备类型，更新 `functions/utils/ha-status-api.js`：
+
+### 3.1 更新 getAllControllableDevices 函数
+
+在 `getAllControllableDevices` 函数中添加新设备类型：
+
+```javascript
+export async function getAllControllableDevices(env) {
+  const [lights, fans, switches] = await Promise.all([
+    getDevicesByDomain(env, 'light'),
+    getDevicesByDomain(env, 'fan'),
+    getDevicesByDomain(env, 'switch')  // 添加新设备类型
+  ]);
+
+  return {
+    light: lights,
+    fan: fans,
+    switch: switches  // 添加新设备类型
+  };
+}
+```
+
+**实际示例（添加 cover 设备）：**
+
+```javascript
+export async function getAllControllableDevices(env) {
+  const [lights, fans, switches, covers] = await Promise.all([
+    getDevicesByDomain(env, 'light'),
+    getDevicesByDomain(env, 'fan'),
+    getDevicesByDomain(env, 'switch'),
+    getDevicesByDomain(env, 'cover')  // 新增
+  ]);
+
+  return {
+    light: lights,
+    fan: fans,
+    switch: switches,
+    cover: covers  // 新增
+  };
+}
+```
+
+### 注意事项
+
+- 如果不需要在管理界面中显示该设备类型，可以跳过此步骤
+- `getDevicesByDomain` 函数会自动从 Home Assistant 获取指定域的所有设备
+- 返回对象的键名应该与设备域名称一致（如 `switch`, `cover`）
+
+## 4. 更新前端管理界面（必需）
+
+如果需要在管理界面中选择新设备类型，必须更新 `manage.html` 文件：
+
+### 4.1 更新 allApis 对象
+
+在 `manage.html` 的 `allApis` 对象中添加新设备类型的接口列表：
+
+```javascript
+// 所有可用的接口列表
+allApis: {
+    light: [
+        { value: 'turnOnLight', label: '打开灯光' },
+        { value: 'turnOffLight', label: '关闭灯光' },
+        { value: 'toggleLight', label: '切换灯光' }
+    ],
+    fan: [
+        { value: 'turnOnFan', label: '打开风扇' },
+        { value: 'turnOffFan', label: '关闭风扇' },
+        { value: 'toggleFan', label: '切换风扇' }
+    ],
+    {domain}: [  // 添加新设备类型
+        { value: 'turnOn{DeviceType}', label: '打开{设备类型}' },
+        { value: 'turnOff{DeviceType}', label: '关闭{设备类型}' },
+        { value: 'toggle{DeviceType}', label: '切换{设备类型}' }
+    ]
+}
+```
+
+**实际示例（开关设备）：**
+
+```javascript
+allApis: {
+    light: [
+        { value: 'turnOnLight', label: '打开灯光' },
+        { value: 'turnOffLight', label: '关闭灯光' },
+        { value: 'toggleLight', label: '切换灯光' }
+    ],
+    fan: [
+        { value: 'turnOnFan', label: '打开风扇' },
+        { value: 'turnOffFan', label: '关闭风扇' },
+        { value: 'toggleFan', label: '切换风扇' }
+    ],
+    switch: [  // 新增
+        { value: 'turnOnSwitch', label: '打开开关' },
+        { value: 'turnOffSwitch', label: '关闭开关' },
+        { value: 'toggleSwitch', label: '切换开关' }
+    ]
+}
+```
+
+### 4.2 更新提示信息（可选）
+
+如果提示信息中列出了支持的设备类型，需要同步更新：
+
+```html
+<p x-show="formData.entityId && filteredApis.length === 0" class="text-xs text-yellow-600 mt-1">
+    提示：当前设备类型（<span x-text="getEntityDomain(formData.entityId)"></span>）暂无可用接口，目前仅支持 light、fan 和 {domain} 类型设备
+</p>
+```
+
+**实际示例（开关设备）：**
+
+```html
+<p x-show="formData.entityId && filteredApis.length === 0" class="text-xs text-yellow-600 mt-1">
+    提示：当前设备类型（<span x-text="getEntityDomain(formData.entityId)"></span>）暂无可用接口，目前仅支持 light、fan 和 switch 类型设备
+</p>
+```
+
+### 注意事项
+
+- **必需性**：如果不在前端添加设备类型，用户在管理界面选择该设备时将看不到可用的接口选项
+- **键名一致**：`allApis` 对象的键名必须与设备域名称完全一致（如 `switch`, `cover`）
+- **API 名称一致**：`value` 字段必须与后端 `tomi.js` 中注册的 API 名称完全一致
+- **标签清晰**：`label` 字段应该使用清晰的中文描述，便于用户理解
+
+## 5. 更新项目文档
+
+添加新设备类型后，需要在以下文档中补充相关内容：
+
+### 5.1 更新使用指南 (`docs/usage.html`)
+
+在"选择调用接口"部分添加新设备类型的接口选项：
+
+```html
+<li>开关设备：打开开关、关闭开关、切换开关</li>
+```
+
+### 5.2 更新 API 文档 (`docs/api.html`)
+
+在设备类型说明中添加新设备类型：
+
+```html
+<li><code class="bg-gray-100 px-1 rounded">domain</code>：设备类型（可选，如：light、fan、switch）</li>
+```
+
+### 5.3 更新 README.md
+
+在"特性"部分更新支持的设备类型：
+
+```markdown
+- 🏠 **设备支持**：支持灯光、风扇和开关设备的开关、切换等操作
+```
+
+### 注意事项
+
+- 确保文档中的示例与实际代码保持一致
+- 如果设备类型有特殊功能，需要在文档中详细说明
+- 保持文档格式和风格统一
+
+## 6. 测试
+
+完成以上步骤后，进行以下测试：
+
+### 6.1 功能测试
+
+1. **创建意图映射**：
+   - 在管理界面中创建意图映射
+   - 使用新的 API 名称（如 `turnOnSwitch`）
+   - 选择对应的设备实体ID（如 `switch.kitchen`）
+   - 配置回复内容（如 "好的，已为您打开开关"）
+
+2. **语音指令测试**：
+   - 通过天猫精灵发送语音指令
+   - 验证设备控制是否正常工作
+   - 测试所有三个基础操作（打开、关闭、切换）
+
+3. **错误处理测试**：
+   - 测试无效的实体ID
+   - 测试设备离线的情况
+   - 检查错误处理和日志输出
+
+### 6.2 文档验证
+
+4. **文档一致性检查**：
+   - 验证文档中的示例是否正确
+   - 确保 API 名称与代码一致
+   - 检查设备类型说明是否完整
+
+### 6.3 代码检查
+
+5. **代码质量检查**：
+   - 确保没有语法错误
+   - 确保所有导入正确
+   - 确保函数命名符合规范
+   - 运行 linter 检查代码风格
+
+## 参考示例
+
+### 完整实现示例
+
+- **基础设备**：`@ha-switch-api.js` - 最简单的实现，只有三个基础函数
+- **带参数设备**：`@ha-light-api.js` - 包含亮度、颜色等扩展功能
+- **复杂设备**：`@ha-fan-api.js` - 包含风速、预设模式、摆风等复杂功能
+
+### 公共方法参考
+
+- **公共工具**：`@ha-common.js` - 包含 `getHAConfig` 和 `callHAService` 方法
+- **状态查询**：`@ha-status-api.js` - 设备状态查询实现参考
+
+## 常见设备类型
+
+### 基础控制设备
+
+- `switch` - 开关（支持 turn_on, turn_off, toggle）
+- `light` - 灯光（支持 turn_on, turn_off, toggle，可设置亮度、颜色）
+- `fan` - 风扇（支持 turn_on, turn_off, toggle，可设置风速、模式）
+
+### 其他设备类型
+
+- `cover` - 窗帘/卷帘（支持 open_cover, close_cover, set_cover_position）
+- `climate` - 空调/温控器（支持 set_temperature, set_hvac_mode）
+- `lock` - 智能锁（支持 lock, unlock）
+- `media_player` - 媒体播放器（支持 play_media, volume_set）
+- `vacuum` - 扫地机器人（支持 start, stop, return_to_base）
+
+### 设备 API 参考
+
+每种设备类型可能支持不同的服务和参数，请参考以下资源：
+
+- [Home Assistant 官方文档](https://www.home-assistant.io/integrations/) - 查看设备集成文档
+- [Home Assistant 服务文档](https://www.home-assistant.io/docs/scripts/service-calls/) - 查看服务调用文档
+- [Home Assistant API 文档](https://developers.home-assistant.io/docs/api/rest/) - 查看 REST API 文档
+
+## 常见问题
+
+### Q: 为什么必须从 ha-common.js 导入？
+
+A: 为了避免代码重复，所有设备 API 共享相同的配置和服务调用逻辑。如果每个文件都重复定义这些方法，会导致代码冗余和维护困难。
+
+### Q: 如果设备不支持 toggle 服务怎么办？
+
+A: 如果设备不支持 `toggle` 服务，可以只实现 `turnOn` 和 `turnOff` 函数，并在 `tomi.js` 中只注册这两个映射。或者可以实现一个自定义的 toggle 逻辑。
+
+### Q: 如何添加设备特定的参数？
+
+A: 在函数的 `options` 参数中添加设备特定的参数，然后在调用 `callHAService` 前将这些参数添加到 `data` 对象中。参考 `@ha-light-api.js` 中的 `turnOnLight` 函数实现。
+
+### Q: 如何测试新添加的设备类型？
+
+A: 首先在管理界面创建意图映射，然后通过天猫精灵发送语音指令。如果遇到问题，检查 Cloudflare Workers 的日志输出，查看错误信息。
+
+### Q: 为什么在管理界面选择了设备，但看不到可用的接口？
+
+A: 这是因为前端代码（`manage.html`）中的 `allApis` 对象还没有添加该设备类型。需要在 `allApis` 对象中添加对应的设备域和接口列表。参考步骤 4。
+
+### Q: 前端和后端的 API 名称必须一致吗？
+
+A: 是的，必须完全一致。前端的 `allApis` 中的 `value` 字段必须与后端 `tomi.js` 中 `apiHandlerMap` 的键名完全一致，否则无法正确调用接口。

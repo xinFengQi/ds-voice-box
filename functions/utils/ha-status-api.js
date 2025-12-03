@@ -3,31 +3,7 @@
  * 用于获取设备状态和实体列表
  */
 
-/**
- * 获取 Home Assistant API 配置
- * @param {Object} env - Cloudflare Workers 环境变量
- * @returns {Object} 包含 URL 和 headers 的配置对象
- */
-function getHAConfig(env) {
-  const haUrl = env.HA_URL;
-  const token = env.HA_TOKEN;
-  
-  if (!haUrl) {
-    throw new Error('HA_URL 环境变量未设置');
-  }
-  
-  if (!token) {
-    throw new Error('HA_TOKEN 环境变量未设置');
-  }
-
-  return {
-    url: haUrl.replace(/\/$/, ''), // 移除末尾的斜杠
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    }
-  };
-}
+import { getHAConfig } from './ha-common.js';
 
 /**
  * 获取所有设备状态
@@ -73,19 +49,21 @@ export async function getDevicesByDomain(env, domain) {
 }
 
 /**
- * 获取所有可控制的设备列表（light 和 fan）
+ * 获取所有可控制的设备列表（light、fan 和 switch）
  * @param {Object} env - Cloudflare Workers 环境变量
  * @returns {Promise<Object>} 按域分类的设备列表
  */
 export async function getAllControllableDevices(env) {
-  const [lights, fans] = await Promise.all([
+  const [lights, fans, switches] = await Promise.all([
     getDevicesByDomain(env, 'light'),
-    getDevicesByDomain(env, 'fan')
+    getDevicesByDomain(env, 'fan'),
+    getDevicesByDomain(env, 'switch')
   ]);
 
   return {
     light: lights,
-    fan: fans
+    fan: fans,
+    switch: switches
   };
 }
 

@@ -8,7 +8,7 @@
 - 🗺️ **意图映射管理**：可视化界面管理意图与设备操作的映射关系
 - ⚡ **内存缓存**：意图映射数据存储在内存中，查询速度极快
 - 🔒 **安全认证**：管理员密码保护，所有接口和页面都需要登录
-- 🏠 **设备支持**：支持灯光和风扇设备的开关、切换等操作
+- 🏠 **设备支持**：支持灯光、风扇和开关设备的开关、切换等操作
 - 🎯 **自定义回复**：可以为每个意图配置自定义的语音回复内容
 - ☁️ **Serverless**：基于 Cloudflare Pages，无需维护服务器
 
@@ -23,9 +23,9 @@ cd ds-voice-box
 
 ### 2. 安装依赖
 
-```bash
-npm install -g wrangler
-```
+   ```bash
+   npm install -g wrangler
+   ```
 
 ### 3. 配置环境变量
 
@@ -38,13 +38,13 @@ cp .dev.vars.example .dev.vars
 
 ### 4. 本地开发
 
-```bash
+   ```bash
 # 基本启动
-npx wrangler pages dev . --ip 0.0.0.0
+   npx wrangler pages dev . --ip 0.0.0.0
 
 # 如果需要使用 KV（本地开发）
 npx wrangler pages dev . --ip 0.0.0.0 --kv INTENTS_KV=your_kv_namespace_id
-```
+   ```
 
 访问 `http://localhost:8788`
 
