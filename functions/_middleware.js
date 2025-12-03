@@ -11,10 +11,11 @@ export async function onRequest(context) {
   const url = new URL(context.request.url);
   const pathname = url.pathname;
   
-  // 排除登录页面（根路径）、登录相关 API 和天猫精灵接口
+  // 排除登录页面（根路径）、文档页面、登录相关 API 和天猫精灵接口
   if (
     pathname === '/' ||
     pathname === '/index.html' ||
+    pathname === '/docs.html' ||
     pathname.startsWith('/api/login') ||
     pathname.startsWith('/api/logout') ||
     pathname.startsWith('/api/check-auth') ||
