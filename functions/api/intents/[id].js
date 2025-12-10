@@ -165,7 +165,8 @@ export async function onRequestPut(context) {
       apiName: body.apiName,
       apiLabel: body.apiLabel || '',
       entityId: body.entityId,
-      replyContent: body.replyContent || ''
+      replyContent: body.replyContent || '',
+      replyAudioId: body.replyAudioId || ''
     };
 
     await saveStore(context, store, nextId);

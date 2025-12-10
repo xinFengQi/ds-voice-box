@@ -176,7 +176,8 @@ export async function onRequestPost(context) {
       apiName: body.apiName,
       apiLabel: body.apiLabel || '',
       entityId: body.entityId,
-      replyContent: body.replyContent || ''
+      replyContent: body.replyContent || '',
+      replyAudioId: body.replyAudioId || ''
     };
 
     store.push(newItem);

@@ -65,10 +65,33 @@ function extractIntentName(body) {
 
 /**
  * 构造天猫精灵响应
- * @param {string} text - 回复文本
+ * @param {string} text - 回复文本（TTS）
+ * @param {string} audioId - 音频素材ID（可选，优先级高于 text）
  * @returns {Object} 响应数据
  */
-function buildResponse(text) {
+function buildResponse(text, audioId = null) {
+  // 如果提供了音频素材ID，使用 action 方式返回音频
+  if (audioId) {
+    return {
+      returnCode: "0",
+      returnErrorSolution: "",
+      returnMessage: "",
+      returnValue: {
+        actions: [
+          {
+            name: "audioPlayGenieSource",
+            properties: {
+              audioGenieId: audioId
+            }
+          }
+        ],
+        resultType: "RESULT",
+        executeCode: "SUCCESS"
+      }
+    };
+  }
+  
+  // 否则使用 TTS 文本播报
   return {
     returnCode: "0",
     returnErrorSolution: "",
@@ -170,11 +193,18 @@ export async function onRequestPost(context) {
       await executeMapping(context.env, mapping);
       console.log(`成功执行接口: ${mapping.apiName} for ${mapping.entityId}`);
       
-      // 返回映射中配置的回复内容，如果没有则使用默认回复
+      // 优先使用音频素材ID，如果没有则使用文本回复
+      const audioId = mapping.replyAudioId || null;
       const replyText = mapping.replyContent || 
         (mapping.apiLabel || `已执行${mapping.apiName}操作`);
       
-      const responseData = buildResponse(replyText);
+      if (audioId) {
+        console.log(`使用音频素材ID回复: ${audioId}`);
+      } else {
+        console.log(`使用文本回复: ${replyText}`);
+      }
+      
+      const responseData = buildResponse(replyText, audioId);
       return new Response(JSON.stringify(responseData), {
         headers: {
           "Content-Type": "application/json;charset=UTF-8"
