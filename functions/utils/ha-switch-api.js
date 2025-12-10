@@ -12,9 +12,11 @@ import { callHAService } from './ha-common.js';
  * @returns {Promise<Object>} API 响应
  */
 export async function turnOnSwitch(env, entityId) {
-  return await callHAService(env, 'switch', 'turn_on', {
+  const res = await callHAService(env, 'switch', 'turn_on', {
     entity_id: entityId
   });
+  console.log('turnOnSwitch', res);
+  return res;
 }
 
 /**

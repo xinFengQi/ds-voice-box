@@ -68,7 +68,6 @@ npx wrangler pages dev . --ip 0.0.0.0 --kv INTENTS_KV=your_kv_namespace_id
 | `LOGIN_PATH` | 登录页面的访问路径 | 自定义，如 `aaa` |
 | `KV_BINDING_NAME` | KV Namespace 绑定名称 | 见下方 KV 配置 |
 | `TOMI_SECRET_KEY` | 天猫精灵接口验证密钥（可选，强烈推荐） | 自定义随机字符串 |
-| `TOMI_SECRET_KEY` | 天猫精灵接口验证密钥（可选） | 自定义随机字符串，强烈推荐设置 |
 
 ### KV 配置步骤
 

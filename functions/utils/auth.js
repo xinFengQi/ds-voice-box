@@ -119,11 +119,12 @@ export function requireAuth(request, options = {}) {
   
   if (!isAuthenticated(request)) {
     if (redirect) {
-      // 对于 HTML 页面，重定向到首页（文档页），而不是登录页
+      // 对于 HTML 页面，重定向到登录页
+      const loginPath = env?.LOGIN_PATH || 'login';
       return new Response(null, {
         status: 302,
         headers: {
-          'Location': '/'
+          'Location': `/${loginPath}`
         }
       });
     } else {

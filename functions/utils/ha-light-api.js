@@ -28,7 +28,8 @@ export async function turnOnLight(env, entityId, options = {}) {
     data.color_temp = options.colorTemp;
   }
 
-  return await callHAService(env, 'light', 'turn_on', data);
+  const res = await callHAService(env, 'light', 'turn_on', data);
+  return res;
 }
 
 /**

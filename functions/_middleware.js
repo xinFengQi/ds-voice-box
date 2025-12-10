@@ -55,12 +55,11 @@ export async function onRequest(context) {
     return context.next();
   }
   
-  // 对于 HTML 页面，检查认证（排除首页和登录路径）
-  if (pathname.endsWith('.html') && pathname !== '/index.html') {
-    const authResponse = requireAuth(context.request, { redirect: true, env: context.env });
-    if (authResponse) {
-      return authResponse;
-    }
+  // 对于所有其他路径（非公开、非静态资源），检查认证
+  // 这包括 /manage、/manage.html 等需要认证的页面
+  const authResponse = requireAuth(context.request, { redirect: true, env: context.env });
+  if (authResponse) {
+    return authResponse;
   }
   
   return context.next();
